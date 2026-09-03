@@ -46,4 +46,28 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function kategori()
+    {
+        return $this->hasMany(Kategori::class, 'id_user');
+    }
+
+    public function dompet()
+    {
+        return $this->hasMany(Dompet::class, 'id_user');
+    }
+
+    public function transaksi()
+    {
+        return $this->hasMany(Transaksi::class, 'id_user');
+    }
+
+    public function anggaran()
+    {
+        return $this->hasMany(Anggaran::class, 'id_user');
+    }
+
+    public function tujuanTabungan()
+    {
+        return $this->hasMany(TujuanTabungan::class, 'id_user');
+    }
 }
