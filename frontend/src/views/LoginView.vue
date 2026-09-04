@@ -407,9 +407,15 @@
 </template>
 
 
+
 <script setup>
 import { ref } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '' // set in .env (e.g. VITE_API_BASE_URL=http://localhost:3000)
 
 /* =========================================================
    FLIP
@@ -437,14 +443,41 @@ const remember = ref(false)
 
 const showLoginPassword = ref(false)
 
-const login = () => {
+const loadingLogin = ref(false)
+const loginError = ref('')
 
-  console.log('Login:', {
-    email: loginEmail.value,
-    password: loginPassword.value,
-    remember: remember.value
-  })
+const login = async () => {
+  loginError.value = ''
+  loadingLogin.value = true
 
+  try {
+    const res = await axios.post(`${API_BASE}/api/auth/login`, {
+      email: loginEmail.value,
+      password: loginPassword.value
+    })
+
+    // adjust according to backend response shape
+    const token = res.data?.token || res.data?.accessToken
+    if (!token) throw new Error('No token returned')
+
+    // store token (and optionally persist if "remember" checked)
+    localStorage.setItem('auth_token', token)
+    if (remember.value) {
+      localStorage.setItem('remember', '1')
+    } else {
+      localStorage.removeItem('remember')
+    }
+
+    // navigate after successful login
+    router.push('/dashboard')
+  } catch (err) {
+    loginError.value = err?.response?.data?.message || err.message || 'Login failed'
+    console.error('Login error:', loginError.value)
+    // lightweight UI feedback
+    window.alert(loginError.value)
+  } finally {
+    loadingLogin.value = false
+  }
 }
 
 
@@ -462,39 +495,64 @@ const agreeTerms = ref(false)
 const showRegisterPassword = ref(false)
 const showConfirmPassword = ref(false)
 
+const loadingRegister = ref(false)
+const registerError = ref('')
 
-const register = () => {
+const register = async () => {
 
   if (!registerName.value) {
-    console.log('Please enter your name')
+    window.alert('Please enter your name')
     return
   }
 
   if (!registerEmail.value) {
-    console.log('Please enter your email')
+    window.alert('Please enter your email')
     return
   }
 
   if (!registerPassword.value) {
-    console.log('Please create a password')
+    window.alert('Please create a password')
     return
   }
 
   if (registerPassword.value !== confirmPassword.value) {
-    console.log('Passwords do not match')
+    window.alert('Passwords do not match')
     return
   }
 
   if (!agreeTerms.value) {
-    console.log('Please agree to the terms')
+    window.alert('Please agree to the terms')
     return
   }
 
-  console.log('Register:', {
-    name: registerName.value,
-    email: registerEmail.value,
-    password: registerPassword.value
-  })
+  registerError.value = ''
+  loadingRegister.value = true
+
+  try {
+    const res = await axios.post(`${API_BASE}/api/auth/register`, {
+      name: registerName.value,
+      email: registerEmail.value,
+      password: registerPassword.value
+    })
+
+    // if backend logs user in immediately, handle token
+    const token = res.data?.token || res.data?.accessToken
+    if (token) {
+      localStorage.setItem('auth_token', token)
+      router.push('/dashboard')
+      return
+    }
+
+    // otherwise inform user and flip back to login
+    window.alert('Registration successful. Please sign in.')
+    flipToLogin()
+  } catch (err) {
+    registerError.value = err?.response?.data?.message || err.message || 'Registration failed'
+    console.error('Register error:', registerError.value)
+    window.alert(registerError.value)
+  } finally {
+    loadingRegister.value = false
+  }
 
 }
 </script>
