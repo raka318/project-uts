@@ -1,28 +1,31 @@
 <template>
   <div class="app-layout">
 
-    <!-- =========================
+    <!-- =====================================================
          DESKTOP SIDEBAR
-    ========================== -->
+    ====================================================== -->
     <aside class="desktop-sidebar">
 
-      <!-- Logo -->
+      <!-- ================= BRAND ================= -->
       <div class="brand">
         <div class="brand-icon">$</div>
         <span>MoneyFlow</span>
       </div>
 
-      <!-- Navigation -->
+
+      <!-- ================= NAVIGATION ================= -->
       <nav class="sidebar-nav">
 
         <div class="nav-section-title">
           MENU
         </div>
 
+
+        <!-- DASHBOARD -->
         <RouterLink
           to="/"
           class="nav-item"
-          :class="{ active: isActive('/') }"
+          :class="{ active: route.path === '/' }"
         >
           <svg viewBox="0 0 24 24">
             <path d="M3 10.5L12 3l9 7.5"></path>
@@ -33,13 +36,22 @@
           <span>Dashboard</span>
         </RouterLink>
 
+
+        <!-- TRANSACTIONS -->
         <RouterLink
           to="/transactions"
           class="nav-item"
-          :class="{ active: isActive('/transactions') }"
+          :class="{ active: route.path.startsWith('/transactions') }"
         >
           <svg viewBox="0 0 24 24">
-            <rect x="5" y="3" width="14" height="18" rx="2"></rect>
+            <rect
+              x="5"
+              y="3"
+              width="14"
+              height="18"
+              rx="2"
+            ></rect>
+
             <path d="M8 8h8"></path>
             <path d="M8 12h8"></path>
             <path d="M8 16h5"></path>
@@ -48,10 +60,12 @@
           <span>Transactions</span>
         </RouterLink>
 
+
+        <!-- BUDGETS -->
         <RouterLink
           to="/budgets"
           class="nav-item"
-          :class="{ active: isActive('/budgets') }"
+          :class="{ active: route.path.startsWith('/budgets') }"
         >
           <svg viewBox="0 0 24 24">
             <path d="M4 19V5"></path>
@@ -65,44 +79,69 @@
           <span>Budgets</span>
         </RouterLink>
 
+
+        <!-- SAVINGS -->
         <RouterLink
           to="/savings"
           class="nav-item"
-          :class="{ active: isActive('/savings') }"
+          :class="{ active: route.path.startsWith('/savings') }"
         >
           <svg viewBox="0 0 24 24">
             <path d="M12 2v20"></path>
-            <path d="M17 6.5c-.8-1.2-2.2-2-4.5-2-2.7 0-4.5 1.3-4.5 3.2 0 5.1 9.5 2.4 9.5 7.1 0 2-1.8 3.6-4.8 3.6-2.4 0-4.1-.8-5.2-2.3"></path>
+
+            <path
+              d="M17 6.5c-.8-1.2-2.2-2-4.5-2-2.7 0-4.5 1.3-4.5 3.2 0 5.1 9.5 2.4 9.5 7.1 0 2-1.8 3.6-4.8 3.6-2.4 0-4.1-.8-5.2-2.3"
+            ></path>
           </svg>
 
           <span>Savings</span>
         </RouterLink>
 
+
+        <!-- ================= PERSONAL ================= -->
         <div class="nav-section-title personal-title">
           PERSONAL
         </div>
 
+
+        <!-- PROFILE -->
         <RouterLink
           to="/profile"
           class="nav-item"
-          :class="{ active: isActive('/profile') }"
+          :class="{ active: route.path.startsWith('/profile') }"
         >
           <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="8" r="4"></circle>
-            <path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"></path>
+            <circle
+              cx="12"
+              cy="8"
+              r="4"
+            ></circle>
+
+            <path
+              d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"
+            ></path>
           </svg>
 
           <span>Profile</span>
         </RouterLink>
 
+
+        <!-- SETTINGS -->
         <RouterLink
           to="/settings"
           class="nav-item"
-          :class="{ active: isActive('/settings') }"
+          :class="{ active: route.path.startsWith('/settings') }"
         >
           <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20h-2.5v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.1a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.4 8.6l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V5h2.5v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1V14h-.1a1.7 1.7 0 0 0-1.6 1z"></path>
+            <circle
+              cx="12"
+              cy="12"
+              r="3"
+            ></circle>
+
+            <path
+              d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20h-2.5v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.1a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.4 8.6l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V5h2.5v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1V14h-.1a1.7 1.7 0 0 0-1.6 1z"
+            ></path>
           </svg>
 
           <span>Settings</span>
@@ -110,21 +149,40 @@
 
       </nav>
 
-      <!-- Help -->
+
+      <!-- =================================================
+           SIDEBAR BOTTOM
+      ================================================== -->
       <div class="sidebar-bottom">
 
+        <!-- HELP -->
         <div class="help-card">
-          <div class="help-icon">?</div>
+
+          <div class="help-icon">
+            ?
+          </div>
 
           <div class="help-text">
             <strong>Need help?</strong>
             <span>We're here for you.</span>
           </div>
 
-          <span class="help-arrow">→</span>
+          <span class="help-arrow">
+            →
+          </span>
+
         </div>
 
-        <div class="sidebar-user">
+
+        <!-- =================================================
+             CLICKABLE SIDEBAR PROFILE
+        ================================================== -->
+        <RouterLink
+          to="/profile"
+          class="sidebar-user"
+          :class="{ 'sidebar-user-active': route.path.startsWith('/profile') }"
+        >
+
           <div class="avatar">
             JD
           </div>
@@ -134,28 +192,40 @@
             <span>Personal Account</span>
           </div>
 
-          <span class="logout-arrow">→|</span>
-        </div>
+          <span class="logout-arrow">
+            →
+          </span>
+
+        </RouterLink>
 
       </div>
+
     </aside>
 
 
-    <!-- =========================
+    <!-- =====================================================
          MOBILE HEADER
-    ========================== -->
+    ====================================================== -->
     <header class="mobile-header">
 
-      <!-- Logo touches left side -->
+      <!-- LOGO -->
       <div class="mobile-brand">
-        <div class="brand-icon">$</div>
-        <span>MoneyFlow</span>
+
+        <div class="brand-icon">
+          $
+        </div>
+
+        <span>
+          MoneyFlow
+        </span>
+
       </div>
 
-      <!-- Profile button -->
+
+      <!-- MOBILE PROFILE -->
       <button
         class="mobile-profile-button"
-        @click="mobileMenuOpen = !mobileMenuOpen"
+        @click="toggleProfileMenu"
         aria-label="Open profile menu"
       >
         <div class="avatar">
@@ -166,134 +236,310 @@
     </header>
 
 
-    <!-- =========================
+    <!-- =====================================================
          MOBILE PROFILE MENU
-    ========================== -->
-    <Transition name="mobile-menu">
+    ====================================================== -->
+    <Transition name="profile-menu">
+
       <div
-        v-if="mobileMenuOpen"
-        class="mobile-menu"
+        v-if="profileMenuOpen"
+        class="profile-dropdown mobile-profile-dropdown"
       >
 
-        <div class="mobile-user-header">
+        <!-- ACCOUNT HEADER -->
+        <div class="dropdown-user">
+
           <div class="avatar large">
             JD
           </div>
 
-          <div>
-            <strong>John Doe</strong>
-            <span>Personal Account</span>
+          <div class="dropdown-user-info">
+
+            <strong>
+              John Doe
+            </strong>
+
+            <span>
+              Personal Account
+            </span>
+
           </div>
+
         </div>
 
-        <div class="mobile-divider"></div>
 
-        <RouterLink
-          to="/"
-          class="mobile-nav-item"
-          @click="closeMobileMenu"
-        >
-          <span>⌂</span>
-          Dashboard
-        </RouterLink>
+        <div class="dropdown-divider"></div>
 
-        <RouterLink
-          to="/transactions"
-          class="mobile-nav-item"
-          @click="closeMobileMenu"
-        >
-          <span>▤</span>
-          Transactions
-        </RouterLink>
 
-        <RouterLink
-          to="/budgets"
-          class="mobile-nav-item"
-          @click="closeMobileMenu"
-        >
-          <span>▥</span>
-          Budgets
-        </RouterLink>
-
-        <RouterLink
-          to="/savings"
-          class="mobile-nav-item"
-          @click="closeMobileMenu"
-        >
-          <span>$</span>
-          Savings
-        </RouterLink>
-
-        <div class="mobile-divider"></div>
-
+        <!-- PROFILE -->
         <RouterLink
           to="/profile"
-          class="mobile-nav-item"
-          @click="closeMobileMenu"
+          class="dropdown-item"
+          @click="closeProfileMenu"
         >
-          <span>♙</span>
-          Profile
+
+          <svg viewBox="0 0 24 24">
+            <circle
+              cx="12"
+              cy="8"
+              r="4"
+            ></circle>
+
+            <path
+              d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"
+            ></path>
+          </svg>
+
+          <span>
+            Profile
+          </span>
+
         </RouterLink>
 
+
+        <!-- SETTINGS -->
         <RouterLink
           to="/settings"
-          class="mobile-nav-item"
-          @click="closeMobileMenu"
+          class="dropdown-item"
+          @click="closeProfileMenu"
         >
-          <span>⚙</span>
-          Settings
+
+          <svg viewBox="0 0 24 24">
+            <circle
+              cx="12"
+              cy="12"
+              r="3"
+            ></circle>
+
+            <path
+              d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20h-2.5v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.1a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.4 8.6l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1V14h-.1a1.7 1.7 0 0 0-1.6 1z"
+            ></path>
+          </svg>
+
+          <span>
+            Settings
+          </span>
+
         </RouterLink>
 
+
+        <div class="dropdown-divider"></div>
+
+
+        <!-- LOGOUT -->
+        <button
+          class="dropdown-item logout-item"
+          @click="logout"
+        >
+
+          <svg viewBox="0 0 24 24">
+            <path d="M10 17l5-5-5-5"></path>
+            <path d="M15 12H3"></path>
+            <path d="M21 3v18"></path>
+          </svg>
+
+          <span>
+            Log out
+          </span>
+
+        </button>
+
       </div>
+
     </Transition>
 
 
-    <!-- =========================
-         MAIN CONTENT
-    ========================== -->
+    <!-- =====================================================
+         MAIN AREA
+    ====================================================== -->
     <main class="main-area">
 
-      <!-- Desktop Top Bar -->
+
+      <!-- =================================================
+           DESKTOP TOP BAR
+      ================================================== -->
       <header class="desktop-topbar">
 
         <div></div>
 
+
         <div class="topbar-right">
 
-          <!-- Notification -->
+
+          <!-- NOTIFICATION -->
           <button class="notification-button">
+
             <svg viewBox="0 0 24 24">
-              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+              <path
+                d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"
+              ></path>
+
               <path d="M10 21h4"></path>
             </svg>
 
             <span class="notification-dot"></span>
+
           </button>
 
-          <!-- Profile -->
-          <div class="desktop-user">
+
+          <!-- =================================================
+               DESKTOP PROFILE BUTTON
+          ================================================== -->
+          <button
+            class="desktop-user"
+            @click="toggleProfileMenu"
+          >
 
             <div class="avatar">
               JD
             </div>
 
             <div class="desktop-user-info">
-              <strong>John Doe</strong>
-              <span>Personal</span>
+
+              <strong>
+                John Doe
+              </strong>
+
+              <span>
+                Personal
+              </span>
+
             </div>
 
-            <span class="chevron">⌄</span>
+            <span
+              class="chevron"
+              :class="{ rotated: profileMenuOpen }"
+            >
+              ⌄
+            </span>
 
-          </div>
+          </button>
+
+
+          <!-- =================================================
+               DESKTOP PROFILE DROPDOWN
+          ================================================== -->
+          <Transition name="profile-menu">
+
+            <div
+              v-if="profileMenuOpen"
+              class="profile-dropdown desktop-profile-dropdown"
+            >
+
+              <!-- ACCOUNT -->
+              <div class="dropdown-user">
+
+                <div class="avatar large">
+                  JD
+                </div>
+
+                <div class="dropdown-user-info">
+
+                  <strong>
+                    John Doe
+                  </strong>
+
+                  <span>
+                    Personal Account
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div class="dropdown-divider"></div>
+
+
+              <!-- PROFILE -->
+              <RouterLink
+                to="/profile"
+                class="dropdown-item"
+                @click="closeProfileMenu"
+              >
+
+                <svg viewBox="0 0 24 24">
+                  <circle
+                    cx="12"
+                    cy="8"
+                    r="4"
+                  ></circle>
+
+                  <path
+                    d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"
+                  ></path>
+                </svg>
+
+                <span>
+                  Profile
+                </span>
+
+              </RouterLink>
+
+
+              <!-- SETTINGS -->
+              <RouterLink
+                to="/settings"
+                class="dropdown-item"
+                @click="closeProfileMenu"
+              >
+
+                <svg viewBox="0 0 24 24">
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                  ></circle>
+
+                  <path
+                    d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20h-2.5v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.1a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.4 8.6l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V5h2.5v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1V14h-.1a1.7 1.7 0 0 0-1.6 1z"
+                  ></path>
+                </svg>
+
+                <span>
+                  Settings
+                </span>
+
+              </RouterLink>
+
+
+              <div class="dropdown-divider"></div>
+
+
+              <!-- LOGOUT -->
+              <button
+                class="dropdown-item logout-item"
+                @click="logout"
+              >
+
+                <svg viewBox="0 0 24 24">
+                  <path d="M10 17l5-5-5-5"></path>
+                  <path d="M15 12H3"></path>
+                  <path d="M21 3v18"></path>
+                </svg>
+
+                <span>
+                  Log out
+                </span>
+
+              </button>
+
+            </div>
+
+          </Transition>
 
         </div>
 
       </header>
 
 
-      <!-- Actual page -->
+      <!-- =================================================
+           PAGE CONTENT
+      ================================================== -->
       <section class="page-content">
-        <RouterView /> 
+
+        <RouterView />
+
       </section>
 
     </main>
@@ -304,31 +550,54 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 
-const mobileMenuOpen = ref(false)
+const profileMenuOpen = ref(false)
 
-const isActive = (path) => {
-  if (path === '/') {
-    return route.path === '/'
-  }
 
-  return route.path.startsWith(path)
+/* =========================================
+   PROFILE MENU
+========================================= */
+
+const toggleProfileMenu = () => {
+  profileMenuOpen.value = !profileMenuOpen.value
 }
 
-const closeMobileMenu = () => {
-  mobileMenuOpen.value = false
+
+const closeProfileMenu = () => {
+  profileMenuOpen.value = false
+}
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+const logout = () => {
+  profileMenuOpen.value = false
+
+  /*
+   * For now this simply returns the user
+   * to the login page.
+   *
+   * Later, when we connect Laravel/API
+   * authentication, we can put the actual
+   * logout request here.
+   */
+
+  router.push('/login')
 }
 </script>
 
 
 <style scoped>
 
-/* ========================================
-   GLOBAL LAYOUT
-======================================== */
+/* =========================================================
+   GLOBAL
+========================================================= */
 
 * {
   box-sizing: border-box;
@@ -336,8 +605,11 @@ const closeMobileMenu = () => {
 
 .app-layout {
   min-height: 100vh;
+
   background: #f7f8fc;
+
   color: #1d2433;
+
   font-family:
     Inter,
     -apple-system,
@@ -347,14 +619,16 @@ const closeMobileMenu = () => {
 }
 
 
-/* ========================================
+/* =========================================================
    DESKTOP SIDEBAR
-======================================== */
+========================================================= */
 
 .desktop-sidebar {
   position: fixed;
+
   top: 0;
   left: 0;
+
   width: 270px;
   height: 100vh;
 
@@ -362,15 +636,16 @@ const closeMobileMenu = () => {
   flex-direction: column;
 
   background: #ffffff;
+
   border-right: 1px solid #edf0f6;
 
   z-index: 100;
 }
 
 
-/* ========================================
+/* =========================================================
    BRAND
-======================================== */
+========================================================= */
 
 .brand {
   height: 100px;
@@ -384,6 +659,7 @@ const closeMobileMenu = () => {
 
   font-size: 21px;
   font-weight: 750;
+
   color: #172033;
 }
 
@@ -396,6 +672,7 @@ const closeMobileMenu = () => {
   justify-content: center;
 
   background: #6c63ff;
+
   color: white;
 
   border-radius: 10px;
@@ -405,9 +682,9 @@ const closeMobileMenu = () => {
 }
 
 
-/* ========================================
+/* =========================================================
    SIDEBAR NAV
-======================================== */
+========================================================= */
 
 .sidebar-nav {
   padding: 25px 15px;
@@ -415,10 +692,12 @@ const closeMobileMenu = () => {
 
 .nav-section-title {
   padding: 0 15px;
+
   margin: 0 0 13px;
 
   font-size: 9px;
   font-weight: 800;
+
   letter-spacing: 1.2px;
 
   color: #a3a9b8;
@@ -429,6 +708,10 @@ const closeMobileMenu = () => {
 }
 
 
+/* =========================================================
+   NAV ITEM
+========================================================= */
+
 .nav-item {
   height: 48px;
 
@@ -438,6 +721,7 @@ const closeMobileMenu = () => {
   gap: 15px;
 
   padding: 0 13px;
+
   margin-bottom: 5px;
 
   border-radius: 10px;
@@ -449,7 +733,9 @@ const closeMobileMenu = () => {
   font-size: 14px;
   font-weight: 550;
 
-  transition: 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .nav-item svg {
@@ -457,36 +743,51 @@ const closeMobileMenu = () => {
   height: 17px;
 
   fill: none;
+
   stroke: currentColor;
+
   stroke-width: 1.7;
 
   stroke-linecap: round;
   stroke-linejoin: round;
+
+  flex-shrink: 0;
 }
 
 .nav-item:hover {
   background: #f6f5ff;
+
   color: #655df5;
 }
 
+
+/* =========================================================
+   ACTIVE NAV
+========================================================= */
+
 .nav-item.active {
   background: #efedff;
+
   color: #6259f5;
+
   font-weight: 700;
 }
 
 
-/* ========================================
+/* =========================================================
    SIDEBAR BOTTOM
-======================================== */
+========================================================= */
 
 .sidebar-bottom {
   margin-top: auto;
+
   padding: 15px;
 }
 
 
-/* Help */
+/* =========================================================
+   HELP
+========================================================= */
 
 .help-card {
   min-height: 70px;
@@ -516,6 +817,7 @@ const closeMobileMenu = () => {
   border-radius: 50%;
 
   background: white;
+
   color: #6259f5;
 
   font-weight: 800;
@@ -532,21 +834,26 @@ const closeMobileMenu = () => {
 
 .help-text strong {
   font-size: 11px;
+
   color: #222a3a;
 }
 
 .help-text span {
   font-size: 9px;
+
   color: #a0a5b3;
 }
 
 .help-arrow {
   color: #6259f5;
+
   font-size: 15px;
 }
 
 
-/* User */
+/* =========================================================
+   SIDEBAR USER
+========================================================= */
 
 .sidebar-user {
   display: flex;
@@ -555,10 +862,26 @@ const closeMobileMenu = () => {
   gap: 12px;
 
   margin-top: 14px;
+
   padding: 15px 7px 5px;
 
   border-top: 1px solid #eceef4;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition: opacity 0.2s ease;
 }
+
+.sidebar-user:hover {
+  opacity: 0.75;
+}
+
+.sidebar-user-active {
+  opacity: 1;
+}
+
 
 .avatar {
   width: 35px;
@@ -573,9 +896,11 @@ const closeMobileMenu = () => {
   border-radius: 50%;
 
   background: #7067f7;
+
   color: white;
 
   font-size: 11px;
+
   font-weight: 750;
 }
 
@@ -590,31 +915,42 @@ const closeMobileMenu = () => {
 
 .sidebar-user-info strong {
   font-size: 11px;
+
   color: #222a3a;
 }
 
 .sidebar-user-info span {
   font-size: 9px;
+
   color: #a0a5b3;
 }
 
 .logout-arrow {
   color: #98a0b0;
+
   font-size: 14px;
 }
 
 
-/* ========================================
-   DESKTOP TOP BAR
-======================================== */
+/* =========================================================
+   MAIN AREA
+========================================================= */
 
 .main-area {
   min-height: 100vh;
+
   margin-left: 270px;
 }
 
+
+/* =========================================================
+   DESKTOP TOP BAR
+========================================================= */
+
 .desktop-topbar {
   height: 86px;
+
+  position: relative;
 
   display: flex;
   align-items: center;
@@ -623,7 +959,10 @@ const closeMobileMenu = () => {
   padding: 0 30px;
 
   background: #ffffff;
+
   border-bottom: 1px solid #edf0f6;
+
+  z-index: 200;
 }
 
 .topbar-right {
@@ -631,10 +970,14 @@ const closeMobileMenu = () => {
   align-items: center;
 
   gap: 22px;
+
+  position: relative;
 }
 
 
-/* Notification */
+/* =========================================================
+   NOTIFICATION
+========================================================= */
 
 .notification-button {
   position: relative;
@@ -647,6 +990,7 @@ const closeMobileMenu = () => {
   justify-content: center;
 
   border: none;
+
   background: transparent;
 
   cursor: pointer;
@@ -657,7 +1001,9 @@ const closeMobileMenu = () => {
   height: 19px;
 
   fill: none;
+
   stroke: #858da0;
+
   stroke-width: 1.6;
 
   stroke-linecap: round;
@@ -674,11 +1020,14 @@ const closeMobileMenu = () => {
   height: 5px;
 
   border-radius: 50%;
+
   background: #6c63ff;
 }
 
 
-/* Desktop user */
+/* =========================================================
+   DESKTOP USER BUTTON
+========================================================= */
 
 .desktop-user {
   display: flex;
@@ -686,7 +1035,23 @@ const closeMobileMenu = () => {
 
   gap: 11px;
 
+  padding: 5px;
+
+  border: none;
+
+  background: transparent;
+
   cursor: pointer;
+
+  text-align: left;
+
+  border-radius: 10px;
+
+  transition: background 0.2s ease;
+}
+
+.desktop-user:hover {
+  background: #f7f6ff;
 }
 
 .desktop-user-info {
@@ -698,11 +1063,13 @@ const closeMobileMenu = () => {
 
 .desktop-user-info strong {
   font-size: 12px;
+
   color: #20283a;
 }
 
 .desktop-user-info span {
   font-size: 9px;
+
   color: #9da4b2;
 }
 
@@ -710,58 +1077,224 @@ const closeMobileMenu = () => {
   margin-left: 5px;
 
   color: #8e96a6;
+
   font-size: 14px;
+
+  transition: transform 0.2s ease;
+}
+
+.chevron.rotated {
+  transform: rotate(180deg);
 }
 
 
-/* ========================================
+/* =========================================================
+   PROFILE DROPDOWN
+========================================================= */
+
+.profile-dropdown {
+  position: absolute;
+
+  width: 245px;
+
+  padding: 10px;
+
+  background: #ffffff;
+
+  border: 1px solid #edf0f6;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 18px 45px rgba(25, 32, 52, 0.14);
+
+  z-index: 2000;
+}
+
+
+/* Desktop position */
+
+.desktop-profile-dropdown {
+  top: 58px;
+  right: 0;
+}
+
+
+/* Mobile position */
+
+.mobile-profile-dropdown {
+  top: 72px;
+  right: 10px;
+}
+
+
+/* =========================================================
+   DROPDOWN USER
+========================================================= */
+
+.dropdown-user {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 8px;
+}
+
+.avatar.large {
+  width: 42px;
+  height: 42px;
+
+  font-size: 12px;
+}
+
+.dropdown-user-info {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.dropdown-user-info strong {
+  font-size: 13px;
+
+  color: #20283a;
+}
+
+.dropdown-user-info span {
+  font-size: 10px;
+
+  color: #999fad;
+}
+
+
+/* =========================================================
+   DROPDOWN DIVIDER
+========================================================= */
+
+.dropdown-divider {
+  height: 1px;
+
+  margin: 8px 0;
+
+  background: #edf0f5;
+}
+
+
+/* =========================================================
+   DROPDOWN ITEM
+========================================================= */
+
+.dropdown-item {
+  width: 100%;
+  min-height: 43px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 10px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: #5f687b;
+
+  text-decoration: none;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 550;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.dropdown-item svg {
+  width: 17px;
+  height: 17px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 1.7;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dropdown-item:hover {
+  background: #f4f2ff;
+
+  color: #6259f5;
+}
+
+
+/* Logout */
+
+.logout-item {
+  color: #687184;
+}
+
+
+/* =========================================================
+   PROFILE MENU TRANSITION
+========================================================= */
+
+.profile-menu-enter-active,
+.profile-menu-leave-active {
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.profile-menu-enter-from,
+.profile-menu-leave-to {
+  opacity: 0;
+
+  transform: translateY(-7px);
+}
+
+
+/* =========================================================
    PAGE
-======================================== */
+========================================================= */
 
 .page-content {
   padding: 32px;
 }
 
 
-/* ========================================
+/* =========================================================
    MOBILE HEADER
-======================================== */
+========================================================= */
 
 .mobile-header {
   display: none;
 }
 
 
-/* ========================================
+/* =========================================================
    MOBILE MENU
-======================================== */
+========================================================= */
 
-.mobile-menu {
+.mobile-profile-dropdown {
   display: none;
 }
 
 
-/* ========================================
-   TRANSITION
-======================================== */
-
-.mobile-menu-enter-active,
-.mobile-menu-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
-
-.mobile-menu-enter-from,
-.mobile-menu-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-
-
-/* ========================================
+/* =========================================================
    TABLET
-======================================== */
+========================================================= */
 
 @media (max-width: 900px) {
 
@@ -784,13 +1317,14 @@ const closeMobileMenu = () => {
 }
 
 
-/* ========================================
+/* =========================================================
    MOBILE
-======================================== */
+========================================================= */
 
 @media (max-width: 700px) {
 
-  /* Hide desktop navigation */
+  /* Hide desktop */
+
   .desktop-sidebar {
     display: none;
   }
@@ -799,13 +1333,18 @@ const closeMobileMenu = () => {
     display: none;
   }
 
-  /* Main goes full width */
+
+  /* Main */
+
   .main-area {
     margin-left: 0;
+
     padding-top: 64px;
   }
 
-  /* Mobile header */
+
+  /* Header */
+
   .mobile-header {
     position: fixed;
 
@@ -826,10 +1365,9 @@ const closeMobileMenu = () => {
     z-index: 1000;
   }
 
-  /*
-    IMPORTANT:
-    Logo touches the left edge.
-  */
+
+  /* Logo */
+
   .mobile-brand {
     display: flex;
     align-items: center;
@@ -839,6 +1377,7 @@ const closeMobileMenu = () => {
     padding-left: 10px;
 
     font-size: 18px;
+
     font-weight: 750;
 
     color: #172033;
@@ -851,6 +1390,7 @@ const closeMobileMenu = () => {
     border-radius: 9px;
   }
 
+
   /* Profile button */
 
   .mobile-profile-button {
@@ -862,6 +1402,7 @@ const closeMobileMenu = () => {
     justify-content: center;
 
     border: none;
+
     background: transparent;
 
     cursor: pointer;
@@ -873,105 +1414,19 @@ const closeMobileMenu = () => {
   }
 
 
-  /* Profile menu */
+  /* Mobile dropdown */
 
-  .mobile-menu {
-    position: fixed;
-
-    top: 72px;
-    right: 10px;
-
-    width: min(300px, calc(100vw - 20px));
-
+  .mobile-profile-dropdown {
     display: block;
 
-    padding: 15px;
-
-    background: white;
-
-    border: 1px solid #edf0f6;
-    border-radius: 15px;
-
-    box-shadow:
-      0 15px 45px rgba(25, 32, 52, 0.14);
-
-    z-index: 999;
+    width: min(
+      300px,
+      calc(100vw - 20px)
+    );
   }
 
-  .mobile-user-header {
-    display: flex;
-    align-items: center;
 
-    gap: 12px;
-
-    padding: 7px;
-  }
-
-  .mobile-user-header .large {
-    width: 42px;
-    height: 42px;
-
-    font-size: 12px;
-  }
-
-  .mobile-user-header div:last-child {
-    display: flex;
-    flex-direction: column;
-
-    gap: 4px;
-  }
-
-  .mobile-user-header strong {
-    font-size: 13px;
-    color: #20283a;
-  }
-
-  .mobile-user-header span {
-    font-size: 10px;
-    color: #999fad;
-  }
-
-  .mobile-divider {
-    height: 1px;
-    background: #edf0f5;
-
-    margin: 10px 0;
-  }
-
-  .mobile-nav-item {
-    min-height: 45px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 13px;
-
-    padding: 0 10px;
-
-    border-radius: 9px;
-
-    color: #5f687b;
-
-    text-decoration: none;
-
-    font-size: 13px;
-    font-weight: 550;
-  }
-
-  .mobile-nav-item span {
-    width: 20px;
-
-    text-align: center;
-
-    color: #7067f7;
-
-    font-size: 16px;
-  }
-
-  .mobile-nav-item:hover {
-    background: #f4f2ff;
-    color: #6259f5;
-  }
+  /* Page */
 
   .page-content {
     padding: 20px 15px 30px;
@@ -980,9 +1435,9 @@ const closeMobileMenu = () => {
 }
 
 
-/* ========================================
+/* =========================================================
    SMALL PHONE
-======================================== */
+========================================================= */
 
 @media (max-width: 400px) {
 
