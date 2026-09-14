@@ -1,3 +1,4 @@
+```vue
 <template>
   <div class="auth-page">
 
@@ -94,6 +95,15 @@
             </div>
 
 
+            <!-- LOGIN ERROR -->
+            <div
+              v-if="loginError"
+              class="error-message"
+            >
+              {{ loginError }}
+            </div>
+
+
             <!-- EMAIL -->
             <div class="form-group">
 
@@ -107,6 +117,8 @@
                   type="email"
                   placeholder="you@example.com"
                   v-model="loginEmail"
+                  autocomplete="email"
+                  @keyup.enter="login"
                 />
 
               </div>
@@ -124,6 +136,7 @@
                 <button
                   type="button"
                   class="forgot-password"
+                  @click="forgotPassword"
                 >
                   Forgot password?
                 </button>
@@ -138,6 +151,8 @@
                   :type="showLoginPassword ? 'text' : 'password'"
                   placeholder="Enter your password"
                   v-model="loginPassword"
+                  autocomplete="current-password"
+                  @keyup.enter="login"
                 />
 
                 <button
@@ -174,10 +189,25 @@
             <button
               type="button"
               class="primary-button"
+              :disabled="loadingLogin"
               @click="login"
             >
-              <span>Sign in</span>
-              <span class="arrow">→</span>
+              <span>
+                {{ loadingLogin ? 'Signing in...' : 'Sign in' }}
+              </span>
+
+              <span
+                v-if="!loadingLogin"
+                class="arrow"
+              >
+                →
+              </span>
+
+              <span
+                v-else
+                class="spinner"
+              ></span>
+
             </button>
 
 
@@ -199,6 +229,7 @@
               <button
                 type="button"
                 class="social-button"
+                @click="socialLogin('Google')"
               >
                 <span class="google-icon">G</span>
                 Google
@@ -207,6 +238,7 @@
               <button
                 type="button"
                 class="social-button"
+                @click="socialLogin('Apple')"
               >
                 <span class="apple-icon">●</span>
                 Apple
@@ -250,6 +282,15 @@
             </div>
 
 
+            <!-- REGISTER ERROR -->
+            <div
+              v-if="registerError"
+              class="error-message"
+            >
+              {{ registerError }}
+            </div>
+
+
             <!-- NAME -->
             <div class="form-group">
 
@@ -263,6 +304,7 @@
                   type="text"
                   placeholder="John Doe"
                   v-model="registerName"
+                  autocomplete="name"
                 />
 
               </div>
@@ -283,6 +325,7 @@
                   type="email"
                   placeholder="you@example.com"
                   v-model="registerEmail"
+                  autocomplete="email"
                 />
 
               </div>
@@ -303,6 +346,7 @@
                   :type="showRegisterPassword ? 'text' : 'password'"
                   placeholder="Create a password"
                   v-model="registerPassword"
+                  autocomplete="new-password"
                 />
 
                 <button
@@ -331,6 +375,7 @@
                   :type="showConfirmPassword ? 'text' : 'password'"
                   placeholder="Confirm your password"
                   v-model="confirmPassword"
+                  autocomplete="new-password"
                 />
 
                 <button
@@ -369,17 +414,30 @@
             <button
               type="button"
               class="primary-button"
+              :disabled="loadingRegister"
               @click="register"
             >
-              <span>Create account</span>
-              <span class="arrow">→</span>
+
+              <span>
+                {{ loadingRegister ? 'Creating...' : 'Create account' }}
+              </span>
+
+              <span
+                v-if="!loadingRegister"
+                class="arrow"
+              >
+                →
+              </span>
+
+              <span
+                v-else
+                class="spinner"
+              ></span>
+
             </button>
 
 
-            <!-- SWITCH TO LOGIN
-                 IMPORTANT:
-                 This is INSIDE the card.
-            -->
+            <!-- SWITCH TO LOGIN -->
             <div class="switch-auth register-switch">
 
               <span>
@@ -407,28 +465,57 @@
 </template>
 
 
-
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
-const router = useRouter()
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '' // set in .env (e.g. VITE_API_BASE_URL=http://localhost:3000)
 
 /* =========================================================
-   FLIP
+   ROUTER
+========================================================= */
+
+const router = useRouter()
+
+
+/* =========================================================
+   API CONFIGURATION
+=========================================================
+
+   Your Laravel backend should normally run at:
+
+   http://127.0.0.1:8000
+
+   If you create a frontend .env file, use:
+
+   VITE_API_BASE_URL=http://127.0.0.1:8000
+
+========================================================= */
+
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+
+
+/* =========================================================
+   FLIP CARD
 ========================================================= */
 
 const isFlipped = ref(false)
 
 const flipToRegister = () => {
   isFlipped.value = true
+
+  // Clear old errors
+  loginError.value = ''
+  registerError.value = ''
 }
 
 const flipToLogin = () => {
   isFlipped.value = false
+
+  // Clear old errors
+  loginError.value = ''
+  registerError.value = ''
 }
 
 
@@ -440,44 +527,202 @@ const loginEmail = ref('')
 const loginPassword = ref('')
 
 const remember = ref(false)
-
 const showLoginPassword = ref(false)
 
 const loadingLogin = ref(false)
 const loginError = ref('')
 
+
 const login = async () => {
+
+  // Clear previous error
   loginError.value = ''
+
+
+  /* -------------------------------------------------------
+     FRONTEND VALIDATION
+  ------------------------------------------------------- */
+
+  if (!loginEmail.value.trim()) {
+    loginError.value = 'Please enter your email.'
+    return
+  }
+
+  if (!loginPassword.value) {
+    loginError.value = 'Please enter your password.'
+    return
+  }
+
+
   loadingLogin.value = true
 
+
   try {
-    const res = await axios.post(`${API_BASE}/api/auth/login`, {
-      email: loginEmail.value,
-      password: loginPassword.value
-    })
 
-    // adjust according to backend response shape
-    const token = res.data?.token || res.data?.accessToken
-    if (!token) throw new Error('No token returned')
+    /* -----------------------------------------------------
+       SEND LOGIN REQUEST TO LARAVEL
 
-    // store token (and optionally persist if "remember" checked)
-    localStorage.setItem('auth_token', token)
-    if (remember.value) {
-      localStorage.setItem('remember', '1')
-    } else {
-      localStorage.removeItem('remember')
+       Your Laravel route is:
+
+       POST /api/login
+
+       NOT:
+
+       /api/auth/login
+    ----------------------------------------------------- */
+
+    const response = await axios.post(
+      `${API_BASE}/api/login`,
+      {
+        email: loginEmail.value.trim(),
+        password: loginPassword.value
+      },
+      {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+
+    console.log('Login response:', response.data)
+
+
+    /* -----------------------------------------------------
+       GET TOKEN
+
+       Laravel returns:
+
+       {
+         status: true,
+         message: "Login berhasil.",
+         token: "..."
+       }
+    ----------------------------------------------------- */
+
+    const token = response.data?.token
+
+
+    if (!token) {
+      throw new Error(
+        'Login succeeded, but the backend did not return a token.'
+      )
     }
 
-    // navigate after successful login
-    router.push('/dashboard')
-  } catch (err) {
-    loginError.value = err?.response?.data?.message || err.message || 'Login failed'
-    console.error('Login error:', loginError.value)
-    // lightweight UI feedback
-    window.alert(loginError.value)
+
+    /* -----------------------------------------------------
+       SAVE TOKEN
+    ----------------------------------------------------- */
+
+    localStorage.setItem(
+      'auth_token',
+      token
+    )
+
+
+    /* -----------------------------------------------------
+       REMEMBER ME
+    ----------------------------------------------------- */
+
+    if (remember.value) {
+
+      localStorage.setItem(
+        'remember',
+        '1'
+      )
+
+    } else {
+
+      localStorage.removeItem(
+        'remember'
+      )
+
+    }
+
+
+    /* -----------------------------------------------------
+       OPTIONAL: SAVE LOGIN USER STATUS
+    ----------------------------------------------------- */
+
+    localStorage.setItem(
+      'is_logged_in',
+      '1'
+    )
+
+
+    /* -----------------------------------------------------
+       SUCCESS
+    ----------------------------------------------------- */
+
+    console.log('Login successful!')
+
+    router.push('/  ')
+
+
+  } catch (error) {
+
+    console.error(
+      'Login error:',
+      error
+    )
+
+
+    /* -----------------------------------------------------
+       BACKEND RESPONSE ERROR
+    ----------------------------------------------------- */
+
+    if (error.response) {
+
+      console.log(
+        'Laravel response:',
+        error.response.data
+      )
+
+
+      const data = error.response.data
+
+
+      if (data?.message) {
+
+        loginError.value =
+          data.message
+
+      } else {
+
+        loginError.value =
+          'Login failed. Please check your email and password.'
+
+      }
+
+
+    /* -----------------------------------------------------
+       REQUEST WAS SENT BUT NO RESPONSE
+    ----------------------------------------------------- */
+
+    } else if (error.request) {
+
+      loginError.value =
+        'Cannot connect to the Laravel server. Make sure php artisan serve is running.'
+
+    /* -----------------------------------------------------
+       OTHER ERROR
+    ----------------------------------------------------- */
+
+    } else {
+
+      loginError.value =
+        error.message ||
+        'Something went wrong.'
+
+    }
+
   } finally {
+
     loadingLogin.value = false
+
   }
+
 }
 
 
@@ -498,63 +743,254 @@ const showConfirmPassword = ref(false)
 const loadingRegister = ref(false)
 const registerError = ref('')
 
+
 const register = async () => {
 
-  if (!registerName.value) {
-    window.alert('Please enter your name')
+  registerError.value = ''
+
+
+  /* -------------------------------------------------------
+     FRONTEND VALIDATION
+  ------------------------------------------------------- */
+
+  if (!registerName.value.trim()) {
+
+    registerError.value =
+      'Please enter your name.'
+
     return
+
   }
 
-  if (!registerEmail.value) {
-    window.alert('Please enter your email')
+
+  if (!registerEmail.value.trim()) {
+
+    registerError.value =
+      'Please enter your email.'
+
     return
+
   }
+
 
   if (!registerPassword.value) {
-    window.alert('Please create a password')
+
+    registerError.value =
+      'Please create a password.'
+
     return
+
   }
 
-  if (registerPassword.value !== confirmPassword.value) {
-    window.alert('Passwords do not match')
+
+  if (registerPassword.value.length < 8) {
+
+    registerError.value =
+      'Password must be at least 8 characters.'
+
     return
+
   }
+
+
+  if (
+    registerPassword.value !==
+    confirmPassword.value
+  ) {
+
+    registerError.value =
+      'Passwords do not match.'
+
+    return
+
+  }
+
 
   if (!agreeTerms.value) {
-    window.alert('Please agree to the terms')
+
+    registerError.value =
+      'Please agree to the Terms & Privacy Policy.'
+
     return
+
   }
 
-  registerError.value = ''
+
   loadingRegister.value = true
 
-  try {
-    const res = await axios.post(`${API_BASE}/api/auth/register`, {
-      name: registerName.value,
-      email: registerEmail.value,
-      password: registerPassword.value
-    })
 
-    // if backend logs user in immediately, handle token
-    const token = res.data?.token || res.data?.accessToken
-    if (token) {
-      localStorage.setItem('auth_token', token)
-      router.push('/dashboard')
-      return
+  try {
+
+    /* -----------------------------------------------------
+       SEND REGISTER REQUEST
+
+       Your Laravel route is:
+
+       POST /api/register
+    ----------------------------------------------------- */
+
+    const response = await axios.post(
+      `${API_BASE}/api/register`,
+      {
+        name: registerName.value.trim(),
+        email: registerEmail.value.trim(),
+        password: registerPassword.value
+      },
+      {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+
+    console.log(
+      'Register response:',
+      response.data
+    )
+
+
+    /* -----------------------------------------------------
+       REGISTRATION SUCCESS
+
+       Your backend does NOT automatically return a token.
+
+       It returns:
+
+       {
+         status: true,
+         message: "Registrasi berhasil.",
+         data: user
+       }
+    ----------------------------------------------------- */
+
+    window.alert(
+      response.data?.message ||
+      'Registration successful. Please sign in.'
+    )
+
+
+    /* -----------------------------------------------------
+       CLEAR FORM
+    ----------------------------------------------------- */
+
+    registerName.value = ''
+    registerEmail.value = ''
+    registerPassword.value = ''
+    confirmPassword.value = ''
+    agreeTerms.value = false
+
+
+    /* -----------------------------------------------------
+       GO BACK TO LOGIN
+    ----------------------------------------------------- */
+
+    flipToLogin()
+
+
+  } catch (error) {
+
+    console.error(
+      'Register error:',
+      error
+    )
+
+
+    if (error.response) {
+
+      console.log(
+        'Laravel register response:',
+        error.response.data
+      )
+
+
+      const data =
+        error.response.data
+
+
+      /* ---------------------------------------------------
+         Laravel VALIDATION ERRORS
+
+         Example:
+
+         {
+           message: "The email has already been taken.",
+           errors: {
+             email: [
+               "The email has already been taken."
+             ]
+           }
+         }
+      --------------------------------------------------- */
+
+      if (data?.errors) {
+
+        const firstError =
+          Object.values(data.errors)[0]?.[0]
+
+
+        registerError.value =
+          firstError ||
+          data.message ||
+          'Registration failed.'
+
+      } else {
+
+        registerError.value =
+          data.message ||
+          'Registration failed.'
+
+      }
+
+
+    } else if (error.request) {
+
+      registerError.value =
+        'Cannot connect to the Laravel server. Make sure php artisan serve is running.'
+
+    } else {
+
+      registerError.value =
+        error.message ||
+        'Registration failed.'
+
     }
 
-    // otherwise inform user and flip back to login
-    window.alert('Registration successful. Please sign in.')
-    flipToLogin()
-  } catch (err) {
-    registerError.value = err?.response?.data?.message || err.message || 'Registration failed'
-    console.error('Register error:', registerError.value)
-    window.alert(registerError.value)
   } finally {
+
     loadingRegister.value = false
+
   }
 
 }
+
+
+/* =========================================================
+   FORGOT PASSWORD
+========================================================= */
+
+const forgotPassword = () => {
+
+  window.alert(
+    'Password reset is not connected yet.'
+  )
+
+}
+
+
+/* =========================================================
+   SOCIAL LOGIN
+========================================================= */
+
+const socialLogin = (provider) => {
+
+  window.alert(
+    `${provider} login is not connected yet.`
+  )
+
+}
+
 </script>
 
 
@@ -633,6 +1069,7 @@ const register = async () => {
   pointer-events: none;
 }
 
+
 .circle-top {
   width: 550px;
   height: 550px;
@@ -641,6 +1078,7 @@ const register = async () => {
   right: -100px;
 }
 
+
 .circle-bottom {
   width: 600px;
   height: 600px;
@@ -648,6 +1086,7 @@ const register = async () => {
   bottom: -410px;
   left: -270px;
 }
+
 
 .circle-middle {
   width: 300px;
@@ -930,6 +1369,29 @@ const register = async () => {
 
 
 /* =========================================================
+   ERROR MESSAGE
+========================================================= */
+
+.error-message {
+  margin: -12px 0 18px;
+
+  padding: 10px 12px;
+
+  border-radius: 8px;
+
+  background: #fff1f1;
+
+  border: 1px solid #ffd4d4;
+
+  color: #d33b3b;
+
+  font-size: 11px;
+
+  line-height: 1.4;
+}
+
+
+/* =========================================================
    FORM
 ========================================================= */
 
@@ -1156,7 +1618,7 @@ const register = async () => {
 }
 
 
-.primary-button:hover {
+.primary-button:hover:not(:disabled) {
   background: #5847dc;
 
   transform: translateY(-1px);
@@ -1166,13 +1628,45 @@ const register = async () => {
 }
 
 
-.primary-button:active {
+.primary-button:active:not(:disabled) {
   transform: translateY(0);
+}
+
+
+.primary-button:disabled {
+  opacity: 0.7;
+
+  cursor: not-allowed;
 }
 
 
 .arrow {
   font-size: 17px;
+}
+
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+.spinner {
+  width: 14px;
+  height: 14px;
+
+  border: 2px solid rgba(255, 255, 255, 0.35);
+
+  border-top-color: white;
+
+  border-radius: 50%;
+
+  animation: spin 0.7s linear infinite;
+}
+
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 
@@ -1321,11 +1815,6 @@ const register = async () => {
 }
 
 
-/*
-  Slightly more room specifically for
-  the register switch.
-*/
-
 .register-switch {
   margin-top: 15px;
 }
@@ -1449,7 +1938,6 @@ const register = async () => {
   }
 
 
-  /* Hide desktop feature boxes */
   .feature-list {
     display: none;
   }
@@ -1657,3 +2145,4 @@ const register = async () => {
 }
 
 </style>
+```

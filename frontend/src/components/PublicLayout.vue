@@ -348,6 +348,89 @@
 
     </Transition>
 
+        <!-- =========================
+         MOBILE BOTTOM NAVIGATION
+    ========================== -->
+    <nav class="mobile-bottom-nav">
+
+      <!-- Dashboard -->
+      <RouterLink
+        to="/"
+        class="mobile-bottom-item"
+        exact-active-class="active"
+      >
+        <svg viewBox="0 0 24 24">
+          <path d="M3 10.5L12 3l9 7.5"></path>
+          <path d="M5 9.5V21h14V9.5"></path>
+          <path d="M9 21v-7h6v7"></path>
+        </svg>
+
+        <span>Dashboard</span>
+      </RouterLink>
+
+
+      <!-- Transactions -->
+      <RouterLink
+        to="/transactions"
+        class="mobile-bottom-item"
+        active-class="active"
+      >
+        <svg viewBox="0 0 24 24">
+          <rect
+            x="5"
+            y="3"
+            width="14"
+            height="18"
+            rx="2"
+          ></rect>
+
+          <path d="M8 8h8"></path>
+          <path d="M8 12h8"></path>
+          <path d="M8 16h5"></path>
+        </svg>
+
+        <span>Transactions</span>
+      </RouterLink>
+
+
+      <!-- Budgets -->
+      <RouterLink
+        to="/budgets"
+        class="mobile-bottom-item"
+        active-class="active"
+      >
+        <svg viewBox="0 0 24 24">
+          <path d="M4 19V5"></path>
+          <path d="M4 19h16"></path>
+          <path d="M7 16v-4"></path>
+          <path d="M11 16V8"></path>
+          <path d="M15 16v-6"></path>
+          <path d="M19 16V5"></path>
+        </svg>
+
+        <span>Budgets</span>
+      </RouterLink>
+
+
+      <!-- Savings -->
+      <RouterLink
+        to="/savings"
+        class="mobile-bottom-item"
+        active-class="active"
+      >
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2v20"></path>
+
+          <path
+            d="M17 6.5c-.8-1.2-2.2-2-4.5-2-2.7 0-4.5 1.3-4.5 3.2 0 5.1 9.5 2.4 9.5 7.1 0 2-1.8 3.6-4.8 3.6-2.4 0-4.1-.8-5.2-2.3"
+          ></path>
+        </svg>
+
+        <span>Savings</span>
+      </RouterLink>
+
+    </nav>
+
 
     <!-- =====================================================
          MAIN AREA
@@ -605,11 +688,8 @@ const logout = () => {
 
 .app-layout {
   min-height: 100vh;
-
   background: #f7f8fc;
-
   color: #1d2433;
-
   font-family:
     Inter,
     -apple-system,
@@ -625,7 +705,6 @@ const logout = () => {
 
 .desktop-sidebar {
   position: fixed;
-
   top: 0;
   left: 0;
 
@@ -636,7 +715,6 @@ const logout = () => {
   flex-direction: column;
 
   background: #ffffff;
-
   border-right: 1px solid #edf0f6;
 
   z-index: 100;
@@ -672,7 +750,6 @@ const logout = () => {
   justify-content: center;
 
   background: #6c63ff;
-
   color: white;
 
   border-radius: 10px;
@@ -743,7 +820,6 @@ const logout = () => {
   height: 17px;
 
   fill: none;
-
   stroke: currentColor;
 
   stroke-width: 1.7;
@@ -756,7 +832,6 @@ const logout = () => {
 
 .nav-item:hover {
   background: #f6f5ff;
-
   color: #655df5;
 }
 
@@ -767,9 +842,7 @@ const logout = () => {
 
 .nav-item.active {
   background: #efedff;
-
   color: #6259f5;
-
   font-weight: 700;
 }
 
@@ -780,7 +853,6 @@ const logout = () => {
 
 .sidebar-bottom {
   margin-top: auto;
-
   padding: 15px;
 }
 
@@ -834,19 +906,16 @@ const logout = () => {
 
 .help-text strong {
   font-size: 11px;
-
   color: #222a3a;
 }
 
 .help-text span {
   font-size: 9px;
-
   color: #a0a5b3;
 }
 
 .help-arrow {
   color: #6259f5;
-
   font-size: 15px;
 }
 
@@ -882,7 +951,6 @@ const logout = () => {
   opacity: 1;
 }
 
-
 .avatar {
   width: 35px;
   height: 35px;
@@ -900,7 +968,6 @@ const logout = () => {
   color: white;
 
   font-size: 11px;
-
   font-weight: 750;
 }
 
@@ -915,19 +982,16 @@ const logout = () => {
 
 .sidebar-user-info strong {
   font-size: 11px;
-
   color: #222a3a;
 }
 
 .sidebar-user-info span {
   font-size: 9px;
-
   color: #a0a5b3;
 }
 
 .logout-arrow {
   color: #98a0b0;
-
   font-size: 14px;
 }
 
@@ -1063,13 +1127,11 @@ const logout = () => {
 
 .desktop-user-info strong {
   font-size: 12px;
-
   color: #20283a;
 }
 
 .desktop-user-info span {
   font-size: 9px;
-
   color: #9da4b2;
 }
 
@@ -1112,7 +1174,7 @@ const logout = () => {
 }
 
 
-/* Desktop position */
+/* Desktop */
 
 .desktop-profile-dropdown {
   top: 58px;
@@ -1120,7 +1182,7 @@ const logout = () => {
 }
 
 
-/* Mobile position */
+/* Mobile */
 
 .mobile-profile-dropdown {
   top: 72px;
@@ -1157,13 +1219,11 @@ const logout = () => {
 
 .dropdown-user-info strong {
   font-size: 13px;
-
   color: #20283a;
 }
 
 .dropdown-user-info span {
   font-size: 10px;
-
   color: #999fad;
 }
 
@@ -1234,7 +1294,6 @@ const logout = () => {
 
 .dropdown-item:hover {
   background: #f4f2ff;
-
   color: #6259f5;
 }
 
@@ -1266,7 +1325,7 @@ const logout = () => {
 
 
 /* =========================================================
-   PAGE
+   PAGE CONTENT
 ========================================================= */
 
 .page-content {
@@ -1278,16 +1337,28 @@ const logout = () => {
    MOBILE HEADER
 ========================================================= */
 
+/*
+   IMPORTANT:
+   Hidden by default.
+   Only shown inside max-width: 700px.
+*/
+
 .mobile-header {
   display: none;
 }
 
 
 /* =========================================================
-   MOBILE MENU
+   MOBILE BOTTOM NAVIGATION
 ========================================================= */
 
-.mobile-profile-dropdown {
+/*
+   IMPORTANT:
+   Hidden by default.
+   This prevents it from appearing on desktop.
+*/
+
+.mobile-bottom-nav {
   display: none;
 }
 
@@ -1296,7 +1367,7 @@ const logout = () => {
    TABLET
 ========================================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 900px) and (min-width: 701px) {
 
   .desktop-sidebar {
     width: 220px;
@@ -1323,27 +1394,44 @@ const logout = () => {
 
 @media (max-width: 700px) {
 
-  /* Hide desktop */
+  /* =======================================================
+     HIDE DESKTOP SIDEBAR
+  ======================================================= */
 
   .desktop-sidebar {
     display: none;
   }
+
+
+  /* =======================================================
+     HIDE DESKTOP TOPBAR
+  ======================================================= */
 
   .desktop-topbar {
     display: none;
   }
 
 
-  /* Main */
+  /* =======================================================
+     MAIN AREA
+  ======================================================= */
 
   .main-area {
     margin-left: 0;
 
     padding-top: 64px;
+
+    /*
+      Leave room for the bottom navigation.
+      This prevents the last content from being hidden.
+    */
+    padding-bottom: 80px;
   }
 
 
-  /* Header */
+  /* =======================================================
+     MOBILE HEADER
+  ======================================================= */
 
   .mobile-header {
     position: fixed;
@@ -1358,7 +1446,7 @@ const logout = () => {
     align-items: center;
     justify-content: space-between;
 
-    background: white;
+    background: #ffffff;
 
     border-bottom: 1px solid #edf0f6;
 
@@ -1366,7 +1454,9 @@ const logout = () => {
   }
 
 
-  /* Logo */
+  /* =======================================================
+     MOBILE LOGO
+  ======================================================= */
 
   .mobile-brand {
     display: flex;
@@ -1391,7 +1481,9 @@ const logout = () => {
   }
 
 
-  /* Profile button */
+  /* =======================================================
+     MOBILE PROFILE BUTTON
+  ======================================================= */
 
   .mobile-profile-button {
     width: 50px;
@@ -1414,7 +1506,9 @@ const logout = () => {
   }
 
 
-  /* Mobile dropdown */
+  /* =======================================================
+     MOBILE PROFILE DROPDOWN
+  ======================================================= */
 
   .mobile-profile-dropdown {
     display: block;
@@ -1423,13 +1517,129 @@ const logout = () => {
       300px,
       calc(100vw - 20px)
     );
+
+    position: fixed;
+
+    top: 72px;
+    right: 10px;
   }
 
 
-  /* Page */
+  /* =======================================================
+     MOBILE PAGE
+  ======================================================= */
 
   .page-content {
-    padding: 20px 15px 30px;
+    padding: 20px 15px;
+  }
+
+
+  /* =======================================================
+     MOBILE BOTTOM NAVIGATION
+  ======================================================= */
+
+  /*
+     THIS IS THE IMPORTANT PART.
+
+     The bottom navigation exists ONLY inside
+     the mobile media query.
+  */
+
+/* DESKTOP */
+.mobile-bottom-nav {
+  display: none;
+}
+
+
+/* MOBILE */
+@media (max-width: 700px) {
+
+  .mobile-bottom-nav {
+    display: grid;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 64px;
+    background: #ffffff;
+    border-top: 1px solid #e8eaf0;
+    z-index: 1000;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+}
+
+
+  /* =======================================================
+     MOBILE BOTTOM NAV ITEM
+  ======================================================= */
+
+  .mobile-bottom-item {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    color: #8b93a5;
+
+    text-decoration: none;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    transition:
+      color 0.2s ease,
+      background 0.2s ease;
+  }
+
+
+  .mobile-bottom-item svg {
+    width: 19px;
+    height: 19px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.7;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+
+  /* Active */
+
+  .mobile-bottom-item.active {
+    color: #6259f5;
+  }
+
+
+  .mobile-bottom-item.active::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    width: 38px;
+    height: 3px;
+
+    background: #6259f5;
+
+    border-radius:
+      0 0 5px 5px;
+  }
+
+
+  .mobile-bottom-item:hover {
+    color: #6259f5;
   }
 
 }
