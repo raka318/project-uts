@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaksi;
-use App\Models\Akun;
+use App\Models\User;
+use App\Models\Dompet;
 use App\Models\Kategori;
 use Exception;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class TransaksiController extends Controller
     {
         try {
             $transactions = Transaksi::with([
-                'akun',
+                'user',
                 'kategori'
             ])
                 ->where('id_user', $request->user()->id)
@@ -41,7 +42,7 @@ class TransaksiController extends Controller
     {
         try {
             $validated = $request->validate([
-                'id_akun' => 'required|integer',
+                'id_dompet' => 'required|integer',
                 'id_kategori' => 'required|integer',
                 'jenis' => 'required|in:pemasukan,pengeluaran',
                 'jumlah' => 'required|numeric|min:0.01',
@@ -50,14 +51,18 @@ class TransaksiController extends Controller
                 'tanggal' => 'required|date',
             ]);
 
-            $account = Akun::where('id_akun', $validated['id_akun'])
+            DB::beginTransaction();
+
+            $dompet = Dompet::where('id_dompet', $validated['id_dompet'])
                 ->where('id_user', $request->user()->id)
+                ->lockForUpdate()
                 ->first();
 
-            if (!$account) {
+            if (!$dompet) {
+                DB::rollBack();
                 return response()->json([
                     'status' => false,
-                    'message' => 'Account not found.',
+                    'message' => 'Dompet tidak ditemukan.',
                 ], 404);
             }
 
@@ -66,17 +71,24 @@ class TransaksiController extends Controller
                 ->first();
 
             if (!$category) {
+                DB::rollBack();
                 return response()->json([
                     'status' => false,
                     'message' => 'Category not found.',
                 ], 404);
             }
 
-            DB::beginTransaction();
+            if ($validated['jenis'] === 'pengeluaran' && $dompet->saldo < $validated['jumlah']) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Saldo dompet tidak mencukupi.',
+                ], 400);
+            }
 
             $transaction = Transaksi::create([
                 'id_user' => $request->user()->id,
-                'id_akun' => $validated['id_akun'],
+                'id_dompet' => $validated['id_dompet'],
                 'id_kategori' => $validated['id_kategori'],
                 'jenis' => $validated['jenis'],
                 'jumlah' => $validated['jumlah'],
@@ -86,26 +98,22 @@ class TransaksiController extends Controller
             ]);
 
             if ($validated['jenis'] === 'pemasukan') {
-                $account->saldo += $validated['jumlah'];
+                $dompet->saldo += $validated['jumlah'];
             } else {
-                $account->saldo -= $validated['jumlah'];
+                $dompet->saldo -= $validated['jumlah'];
             }
 
-            $account->save();
+            $dompet->save();
 
             DB::commit();
 
             return response()->json([
                 'status' => true,
                 'message' => 'Transaction created successfully.',
-                'data' => $transaction->load([
-                    'akun',
-                    'kategori'
-                ]),
+                'data' => $transaction->load(['user', 'kategori']),
             ], 201);
 
         } catch (Exception $e) {
-
             DB::rollBack();
 
             return response()->json([
@@ -119,7 +127,7 @@ class TransaksiController extends Controller
     {
         try {
             $transaction = Transaksi::with([
-                'akun',
+                'user',
                 'kategori'
             ])
                 ->where('id_transaksi', $id)
@@ -147,6 +155,106 @@ class TransaksiController extends Controller
         }
     }
 
+    public function update(Request $request, $id)
+    {
+        try {
+            $transaction = Transaksi::where('id_transaksi', $id)
+                ->where('id_user', $request->user()->id)
+                ->first();
+
+            if (!$transaction) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Transaction not found.',
+                ], 404);
+            }
+
+            $validated = $request->validate([
+                'id_dompet' => 'required|integer',
+                'id_kategori' => 'required|integer',
+                'jenis' => 'required|in:pemasukan,pengeluaran',
+                'jumlah' => 'required|numeric|min:0.01',
+                'judul' => 'required|string|max:150',
+                'deskripsi' => 'nullable|string',
+                'tanggal' => 'required|date',
+            ]);
+
+            DB::beginTransaction();
+
+            // 1. Kembalikan (revert) saldo dompet lama sebelum diedit
+            $oldDompet = Dompet::where('id_dompet', $transaction->id_dompet)
+                ->where('id_user', $request->user()->id)
+                ->first();
+
+            if ($oldDompet) {
+                if ($transaction->jenis === 'pemasukan') {
+                    $oldDompet->saldo -= $transaction->jumlah;
+                } else {
+                    $oldDompet->saldo += $transaction->jumlah;
+                }
+                $oldDompet->save();
+            }
+
+            // 2. Ambil data dompet baru
+            $newDompet = Dompet::where('id_dompet', $validated['id_dompet'])
+                ->where('id_user', $request->user()->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$newDompet) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Dompet tidak ditemukan.',
+                ], 404);
+            }
+
+            // 3. Cek kecukupan saldo jika jenis transaksi baru adalah pengeluaran
+            if ($validated['jenis'] === 'pengeluaran' && $newDompet->saldo < $validated['jumlah']) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Saldo dompet tidak mencukupi.',
+                ], 400);
+            }
+
+            // 4. Update data transaksi
+            $transaction->update([
+                'id_dompet' => $validated['id_dompet'],
+                'id_kategori' => $validated['id_kategori'],
+                'jenis' => $validated['jenis'],
+                'jumlah' => $validated['jumlah'],
+                'judul' => $validated['judul'],
+                'deskripsi' => $validated['deskripsi'] ?? null,
+                'tanggal' => $validated['tanggal'],
+            ]);
+
+            // 5. Terapkan saldo pada dompet baru
+            if ($validated['jenis'] === 'pemasukan') {
+                $newDompet->saldo += $validated['jumlah'];
+            } else {
+                $newDompet->saldo -= $validated['jumlah'];
+            }
+            $newDompet->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Transaction updated successfully.',
+                'data' => $transaction->load(['user', 'kategori']),
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function destroy(Request $request, $id)
     {
         try {
@@ -161,19 +269,20 @@ class TransaksiController extends Controller
                 ], 404);
             }
 
-            $account = Akun::where('id_akun', $transaction->id_akun)
+            $dompet = Dompet::where('id_dompet', $transaction->id_dompet)
                 ->where('id_user', $request->user()->id)
                 ->first();
 
             DB::beginTransaction();
 
-            if ($transaction->jenis === 'pemasukan') {
-                $account->saldo -= $transaction->jumlah;
-            } else {
-                $account->saldo += $transaction->jumlah;
+            if ($dompet) {
+                if ($transaction->jenis === 'pemasukan') {
+                    $dompet->saldo -= $transaction->jumlah;
+                } else {
+                    $dompet->saldo += $transaction->jumlah;
+                }
+                $dompet->save();
             }
-
-            $account->save();
 
             $transaction->delete();
 
@@ -185,7 +294,6 @@ class TransaksiController extends Controller
             ], 200);
 
         } catch (Exception $e) {
-
             DB::rollBack();
 
             return response()->json([
