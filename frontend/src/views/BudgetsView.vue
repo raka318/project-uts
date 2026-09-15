@@ -2,7 +2,6 @@
   <div class="page">
 
     <div class="page-header">
-
       <div>
         <span class="eyebrow">PERSONAL ACCOUNT</span>
 
@@ -17,7 +16,6 @@
         <span>+</span>
         Add Budget
       </button>
-
     </div>
 
 
@@ -27,10 +25,14 @@
       <div>
         <span>Total Monthly Budget</span>
 
-        <strong>$1,250</strong>
+        <strong>
+          {{ budgets.length ? '$' + formatNumber(totalLimit) : '—' }}
+        </strong>
 
         <p>
-          $820 spent this month
+          {{ budgets.length
+            ? '$' + formatNumber(totalSpent) + ' spent this month'
+            : 'No budget data yet' }}
         </p>
       </div>
 
@@ -39,12 +41,12 @@
         <div class="progress-track">
           <div
             class="progress-fill"
-            style="width: 65%"
+            :style="{ width: totalPercent + '%' }"
           ></div>
         </div>
 
         <span>
-          65% used
+          {{ budgets.length ? totalPercent + '% used' : '—' }}
         </span>
 
       </div>
@@ -66,7 +68,26 @@
     </div>
 
 
-    <div class="budget-grid">
+    <!-- EMPTY STATE -->
+    <div
+      v-if="budgets.length === 0"
+      class="empty-state"
+    >
+      <div class="empty-icon">💜</div>
+
+      <strong>No budgets yet.</strong>
+
+      <span>
+        Create a budget to start tracking your spending limits.
+      </span>
+    </div>
+
+
+    <!-- BUDGET GRID -->
+    <div
+      v-else
+      class="budget-grid"
+    >
 
       <div
         v-for="budget in budgets"
@@ -95,11 +116,11 @@
         <div class="budget-money">
 
           <strong>
-            ${{ budget.spent }}
+            ${{ formatNumber(budget.spent) }}
           </strong>
 
           <span>
-            / ${{ budget.limit }}
+            / ${{ formatNumber(budget.limit) }}
           </span>
 
         </div>
@@ -122,7 +143,7 @@
           </span>
 
           <span>
-            ${{ budget.remaining }} left
+            ${{ formatNumber(budget.remaining) }} left
           </span>
 
         </div>
@@ -136,65 +157,49 @@
 
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 
-const budgets = ref([
-  {
-    id: 1,
-    name: 'Food & Dining',
-    spent: '420',
-    limit: '600',
-    remaining: '180',
-    percent: 70,
-    icon: '🍔'
-  },
-  {
-    id: 2,
-    name: 'Shopping',
-    spent: '280',
-    limit: '400',
-    remaining: '120',
-    percent: 70,
-    icon: '🛍️'
-  },
-  {
-    id: 3,
-    name: 'Entertainment',
-    spent: '120',
-    limit: '250',
-    remaining: '130',
-    percent: 48,
-    icon: '🎬'
-  },
-  {
-    id: 4,
-    name: 'Transportation',
-    spent: '155',
-    limit: '300',
-    remaining: '145',
-    percent: 52,
-    icon: '🚗'
-  },
-  {
-    id: 5,
-    name: 'Bills',
-    spent: '300',
-    limit: '400',
-    remaining: '100',
-    percent: 75,
-    icon: '📄'
-  },
-  {
-    id: 6,
-    name: 'Personal',
-    spent: '80',
-    limit: '200',
-    remaining: '120',
-    percent: 40,
-    icon: '👤'
-  }
-])
+/*
+ * Empty by default.
+ *
+ * When your teammate's backend starts returning budget data,
+ * you can replace/populate this array from the API.
+ */
+const budgets = ref([])
+
+
+const totalLimit = computed(() =>
+  budgets.value.reduce(
+    (total, budget) => total + Number(budget.limit || 0),
+    0
+  )
+)
+
+
+const totalSpent = computed(() =>
+  budgets.value.reduce(
+    (total, budget) => total + Number(budget.spent || 0),
+    0
+  )
+)
+
+
+const totalPercent = computed(() => {
+  if (!totalLimit.value) return 0
+
+  return Math.min(
+    Math.round((totalSpent.value / totalLimit.value) * 100),
+    100
+  )
+})
+
+
+const formatNumber = (value) =>
+  Number(value || 0).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
 
 
 const addBudget = () => {
@@ -202,9 +207,9 @@ const addBudget = () => {
   budgets.value.push({
     id: Date.now(),
     name: 'New Budget',
-    spent: '0',
-    limit: '200',
-    remaining: '200',
+    spent: 0,
+    limit: 200,
+    remaining: 200,
     percent: 0,
     icon: '💜'
   })
@@ -273,6 +278,7 @@ const addBudget = () => {
 
   display: flex;
   align-items: center;
+  justify-content: center;
 
   gap: 8px;
 
@@ -289,6 +295,16 @@ const addBudget = () => {
   font-weight: 700;
 
   cursor: pointer;
+
+  box-shadow:
+    0 8px 20px rgba(102, 85, 233, .2);
+
+  transition: .2s ease;
+}
+
+.primary-button:hover {
+  background: #5746dc;
+  transform: translateY(-1px);
 }
 
 
@@ -382,6 +398,63 @@ const addBudget = () => {
   color: #969cab;
 
   font-size: 11px;
+}
+
+
+/* EMPTY */
+
+.empty-state {
+  min-height: 280px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 40px 20px;
+
+  border: 1px solid #e8eaf0;
+  border-radius: 14px;
+
+  background: white;
+
+  text-align: center;
+
+  color: #9aa1b2;
+}
+
+.empty-icon {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 12px;
+
+  border-radius: 12px;
+
+  background: #f0edff;
+
+  font-size: 20px;
+}
+
+.empty-state strong {
+  margin-bottom: 5px;
+
+  color: #667085;
+
+  font-size: 13px;
+}
+
+.empty-state span {
+  max-width: 300px;
+
+  color: #9aa1b2;
+
+  font-size: 10px;
+  line-height: 1.5;
 }
 
 
@@ -492,8 +565,6 @@ const addBudget = () => {
 
   .primary-button {
     width: 100%;
-
-    justify-content: center;
   }
 
   .overview-card {

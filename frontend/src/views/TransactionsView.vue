@@ -1,83 +1,52 @@
 <template>
   <div class="page">
-
-    <!-- =========================
-         PAGE HEADER
-    ========================== -->
     <div class="page-header">
-
       <div>
         <span class="eyebrow">PERSONAL ACCOUNT</span>
-
         <h1>Transactions</h1>
-
-        <p>
-          Track and manage all your income and expenses.
-        </p>
+        <p>Track and manage all your income and expenses.</p>
       </div>
 
-      <button class="primary-button" @click="showModal = true">
+      <button class="primary-button" @click="openModal">
         <span>+</span>
         Add Transaction
       </button>
-
     </div>
 
-
-    <!-- =========================
-         SUMMARY CARDS
-    ========================== -->
     <div class="summary-grid">
-
       <div class="summary-card">
         <div class="summary-icon purple">$</div>
-
         <div>
           <span>Total Balance</span>
-          <strong>$12,450</strong>
+          <strong>{{ transactions.length ? '$' + formatNumber(totalBalance) : '—' }}</strong>
         </div>
       </div>
-
 
       <div class="summary-card">
         <div class="summary-icon green">↗</div>
-
         <div>
           <span>Total Income</span>
-          <strong>$5,200</strong>
+          <strong>{{ transactions.length ? '$' + formatNumber(totalIncome) : '—' }}</strong>
         </div>
       </div>
-
 
       <div class="summary-card">
         <div class="summary-icon red">↘</div>
-
         <div>
           <span>Total Expenses</span>
-          <strong>$2,840</strong>
+          <strong>{{ transactions.length ? '$' + formatNumber(totalExpenses) : '—' }}</strong>
         </div>
       </div>
-
     </div>
 
-
-    <!-- =========================
-         TRANSACTION SECTION
-    ========================== -->
     <div class="transaction-card">
-
       <div class="card-header">
-
         <div>
           <h2>All Transactions</h2>
-
-          <p>
-            Your recent financial activity
-          </p>
+          <p>Your recent financial activity</p>
         </div>
 
         <div class="filters">
-
           <select v-model="filter">
             <option value="all">All transactions</option>
             <option value="income">Income</option>
@@ -85,27 +54,26 @@
           </select>
 
           <select v-model="period">
-            <option>This Month</option>
-            <option>Last Month</option>
-            <option>This Year</option>
+            <option value="all">All time</option>
+            <option value="month">This Month</option>
+            <option value="lastMonth">Last Month</option>
+            <option value="year">This Year</option>
           </select>
-
         </div>
-
       </div>
 
+      <div v-if="loading" class="empty-state">
+        <div class="empty-icon">↻</div>
+        <strong>Loading transactions...</strong>
+        <span>Please wait while your transactions are loaded.</span>
+      </div>
 
-      <!-- =========================
-           TRANSACTION LIST
-      ========================== -->
-      <div class="transaction-list">
-
+      <div v-else class="transaction-list">
         <div
           v-for="transaction in filteredTransactions"
-          :key="transaction.id"
+          :key="transaction.id_transaksi"
           class="transaction-item"
         >
-
           <div
             class="transaction-icon"
             :class="transaction.type"
@@ -113,265 +81,472 @@
             {{ transaction.icon }}
           </div>
 
-
           <div class="transaction-info">
-
-            <strong>
-              {{ transaction.name }}
-            </strong>
-
-            <span>
-              {{ transaction.category }}
-            </span>
-
+            <strong>{{ transaction.name }}</strong>
+            <span>{{ transaction.category }}</span>
           </div>
 
+          <div class="transaction-wallet">
+            {{ transaction.wallet }}
+          </div>
 
           <div class="transaction-date">
             {{ transaction.date }}
           </div>
-
 
           <div
             class="transaction-amount"
             :class="transaction.type"
           >
             {{ transaction.type === 'income' ? '+' : '-' }}${{
-              transaction.amount
+              formatNumber(transaction.amount)
             }}
           </div>
 
+          <button
+            class="delete-button"
+            title="Delete transaction"
+            @click="deleteTransaction(transaction.id_transaksi)"
+          >
+            ×
+          </button>
         </div>
-
       </div>
-
 
       <div
-        v-if="filteredTransactions.length === 0"
+        v-if="!loading && filteredTransactions.length === 0"
         class="empty-state"
       >
-        No transactions found.
+        <div class="empty-icon">↗</div>
+        <strong>
+          {{ transactions.length ? 'No transactions found.' : 'No transactions yet.' }}
+        </strong>
+        <span>
+          {{ transactions.length
+            ? 'Try changing your filter or period.'
+            : 'Your income and expenses will appear here.' }}
+        </span>
       </div>
-
     </div>
 
-
-    <!-- =========================
-         ADD TRANSACTION MODAL
-    ========================== -->
     <div
       v-if="showModal"
       class="modal-overlay"
-      @click.self="showModal = false"
+      @click.self="closeModal"
     >
-
       <div class="modal">
-
-        <button
-          class="close-button"
-          @click="showModal = false"
-        >
-          ×
-        </button>
+        <button class="close-button" @click="closeModal">×</button>
 
         <h2>Add Transaction</h2>
+        <p>Add a new income or expense.</p>
 
-        <p>
-          Add a new income or expense.
-        </p>
-
+        <div v-if="formError" class="form-error">
+          {{ formError }}
+        </div>
 
         <div class="form-group">
           <label>Transaction name</label>
-
           <input
-            v-model="newTransaction.name"
+            v-model="newTransaction.judul"
             placeholder="Example: Lunch"
           />
         </div>
 
+        <div class="form-row">
+          <div class="form-group">
+            <label>Amount</label>
+            <input
+              v-model="newTransaction.jumlah"
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Type</label>
+            <select v-model="newTransaction.jenis">
+              <option value="pengeluaran">Expense</option>
+              <option value="pemasukan">Income</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Wallet</label>
+            <select v-model="newTransaction.id_dompet">
+              <option value="" disabled>Select wallet</option>
+              <option
+                v-for="wallet in wallets"
+                :key="wallet.id_dompet"
+                :value="wallet.id_dompet"
+              >
+                {{ wallet.nama_dompet }}
+              </option>
+            </select>
+            <small v-if="wallets.length === 0">
+              No wallets available yet.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label>Category</label>
+            <select v-model="newTransaction.id_kategori">
+              <option value="" disabled>Select category</option>
+              <option
+                v-for="category in availableCategories"
+                :key="category.id_kategori"
+                :value="category.id_kategori"
+              >
+                {{ category.nama_kategori }}
+              </option>
+            </select>
+            <small v-if="categories.length === 0">
+              No categories available yet.
+            </small>
+          </div>
+        </div>
 
         <div class="form-group">
-          <label>Amount</label>
-
+          <label>Date</label>
           <input
-            v-model="newTransaction.amount"
-            type="number"
-            placeholder="0.00"
+            v-model="newTransaction.tanggal"
+            type="date"
           />
         </div>
 
-
         <div class="form-group">
-          <label>Type</label>
-
-          <select v-model="newTransaction.type">
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
-          </select>
+          <label>Description <span>(optional)</span></label>
+          <textarea
+            v-model="newTransaction.deskripsi"
+            rows="3"
+            placeholder="Add a note..."
+          ></textarea>
         </div>
 
-
         <div class="modal-actions">
-
-          <button
-            class="cancel-button"
-            @click="showModal = false"
-          >
+          <button class="cancel-button" @click="closeModal">
             Cancel
           </button>
 
           <button
             class="primary-button"
+            :disabled="saving"
             @click="addTransaction"
           >
-            Add Transaction
+            {{ saving ? 'Saving...' : 'Add Transaction' }}
           </button>
-
         </div>
-
       </div>
-
     </div>
-
   </div>
 </template>
-
-
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import api from '../utils/api.js'
 
+const router = useRouter()
 
 const filter = ref('all')
-const period = ref('This Month')
+const period = ref('all')
 
 const showModal = ref(false)
+const loading = ref(false)
+const saving = ref(false)
+const formError = ref('')
 
+const transactions = ref([])
+const wallets = ref([])
+const categories = ref([])
 
-const transactions = ref([
-  {
-    id: 1,
-    name: 'Lunch',
-    category: 'Food & Dining',
-    amount: '42.50',
-    type: 'expense',
-    date: 'Today',
-    icon: '🍔'
-  },
-  {
-    id: 2,
-    name: 'Shopping',
-    category: 'Shopping',
-    amount: '125.00',
-    type: 'expense',
-    date: 'Yesterday',
-    icon: '🛍️'
-  },
-  {
-    id: 3,
-    name: 'Salary',
-    category: 'Income',
-    amount: '4,500.00',
-    type: 'income',
-    date: 'Aug 30',
-    icon: '💰'
-  },
-  {
-    id: 4,
-    name: 'Netflix',
-    category: 'Entertainment',
-    amount: '15.99',
-    type: 'expense',
-    date: 'Aug 29',
-    icon: '🎬'
-  },
-  {
-    id: 5,
-    name: 'Gas',
-    category: 'Transportation',
-    amount: '55.00',
-    type: 'expense',
-    date: 'Aug 28',
-    icon: '⛽'
-  },
-  {
-    id: 6,
-    name: 'Freelance',
-    category: 'Income',
-    amount: '850.00',
-    type: 'income',
-    date: 'Aug 27',
-    icon: '💼'
-  }
-])
-
+const today = new Date().toISOString().slice(0, 10)
 
 const newTransaction = ref({
-  name: '',
-  amount: '',
-  type: 'expense'
+  id_dompet: '',
+  id_kategori: '',
+  jenis: 'pengeluaran',
+  jumlah: '',
+  judul: '',
+  deskripsi: '',
+  tanggal: today
 })
 
+const isUnauthorized = (error) => error?.response?.status === 401
 
-const filteredTransactions = computed(() => {
+const getApiData = (response) => {
+  const data = response?.data?.data
+  return Array.isArray(data) ? data : []
+}
 
-  if (filter.value === 'all') {
-    return transactions.value
+const normalizeTransaction = (transaction) => {
+  const isIncome = transaction.jenis === 'pemasukan'
+
+  return {
+    ...transaction,
+    type: isIncome ? 'income' : 'expense',
+    name: transaction.judul || 'Untitled transaction',
+    category: transaction.kategori?.nama_kategori || 'Uncategorized',
+    wallet: transaction.dompet?.nama_dompet || 'Unknown wallet',
+    amount: Number(transaction.jumlah || 0),
+    date: formatDate(transaction.tanggal),
+    icon: transaction.kategori?.ikon || (isIncome ? '💰' : '💳')
+  }
+}
+
+const formatDate = (date) => {
+  if (!date) return '—'
+
+  const parsed = new Date(date)
+
+  if (Number.isNaN(parsed.getTime())) {
+    return date
   }
 
-  return transactions.value.filter(
-    transaction => transaction.type === filter.value
-  )
+  return parsed.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
+}
 
+const formatNumber = (value) =>
+  Number(value || 0).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+
+const totalIncome = computed(() =>
+  transactions.value
+    .filter(transaction => transaction.type === 'income')
+    .reduce((total, transaction) => total + Number(transaction.amount || 0), 0)
+)
+
+const totalExpenses = computed(() =>
+  transactions.value
+    .filter(transaction => transaction.type === 'expense')
+    .reduce((total, transaction) => total + Number(transaction.amount || 0), 0)
+)
+
+const totalBalance = computed(() =>
+  totalIncome.value - totalExpenses.value
+)
+
+const availableCategories = computed(() =>
+  categories.value.filter(category =>
+    category.jenis === newTransaction.value.jenis
+  )
+)
+
+const filteredTransactions = computed(() => {
+  let result = transactions.value
+
+  if (filter.value !== 'all') {
+    result = result.filter(transaction => transaction.type === filter.value)
+  }
+
+  if (period.value !== 'all') {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = now.getMonth()
+
+    result = result.filter(transaction => {
+      if (!transaction.tanggal) return false
+
+      const date = new Date(transaction.tanggal)
+
+      if (Number.isNaN(date.getTime())) return false
+
+      if (period.value === 'year') {
+        return date.getFullYear() === year
+      }
+
+      if (period.value === 'month') {
+        return (
+          date.getFullYear() === year &&
+          date.getMonth() === month
+        )
+      }
+
+      if (period.value === 'lastMonth') {
+        const lastMonthDate = new Date(year, month - 1, 1)
+
+        return (
+          date.getFullYear() === lastMonthDate.getFullYear() &&
+          date.getMonth() === lastMonthDate.getMonth()
+        )
+      }
+
+      return true
+    })
+  }
+
+  return result
 })
 
+const loadData = async () => {
+  loading.value = true
 
-const addTransaction = () => {
+  try {
+    const results = await Promise.allSettled([
+      api.get('/transaksi'),
+      api.get('/dompet'),
+      api.get('/kategori')
+    ])
 
-  if (!newTransaction.value.name ||
-      !newTransaction.value.amount) {
+    const unauthorized = results.some(
+      result =>
+        result.status === 'rejected' &&
+        isUnauthorized(result.reason)
+    )
+
+    if (unauthorized) {
+      router.push('/login')
+      return
+    }
+
+    const transactionResult = results[0]
+    const walletResult = results[1]
+    const categoryResult = results[2]
+
+    transactions.value =
+      transactionResult.status === 'fulfilled'
+        ? getApiData(transactionResult.value).map(normalizeTransaction)
+        : []
+
+    wallets.value =
+      walletResult.status === 'fulfilled'
+        ? getApiData(walletResult.value)
+        : []
+
+    categories.value =
+      categoryResult.status === 'fulfilled'
+        ? getApiData(categoryResult.value)
+        : []
+  } finally {
+    loading.value = false
+  }
+}
+
+const resetForm = () => {
+  newTransaction.value = {
+    id_dompet: '',
+    id_kategori: '',
+    jenis: 'pengeluaran',
+    jumlah: '',
+    judul: '',
+    deskripsi: '',
+    tanggal: today
+  }
+
+  formError.value = ''
+}
+
+const openModal = () => {
+  resetForm()
+
+  if (wallets.value.length) {
+    newTransaction.value.id_dompet = wallets.value[0].id_dompet
+  }
+
+  const firstCategory = availableCategories.value[0]
+
+  if (firstCategory) {
+    newTransaction.value.id_kategori = firstCategory.id_kategori
+  }
+
+  showModal.value = true
+}
+
+const closeModal = () => {
+  if (saving.value) return
+
+  showModal.value = false
+  resetForm()
+}
+
+const addTransaction = async () => {
+  formError.value = ''
+
+  if (
+    !newTransaction.value.judul ||
+    !newTransaction.value.jumlah ||
+    !newTransaction.value.id_dompet ||
+    !newTransaction.value.id_kategori ||
+    !newTransaction.value.tanggal
+  ) {
+    formError.value = 'Please complete all required fields.'
     return
   }
 
-
-  transactions.value.unshift({
-
-    id: Date.now(),
-
-    name: newTransaction.value.name,
-
-    category:
-      newTransaction.value.type === 'income'
-        ? 'Income'
-        : 'General',
-
-    amount:
-      Number(newTransaction.value.amount).toFixed(2),
-
-    type: newTransaction.value.type,
-
-    date: 'Just now',
-
-    icon:
-      newTransaction.value.type === 'income'
-        ? '💰'
-        : '💳'
-
-  })
-
-
-  newTransaction.value = {
-    name: '',
-    amount: '',
-    type: 'expense'
+  if (Number(newTransaction.value.jumlah) <= 0) {
+    formError.value = 'Amount must be greater than 0.'
+    return
   }
 
+  saving.value = true
 
-  showModal.value = false
+  try {
+    const response = await api.post('/transaksi', {
+      id_dompet: Number(newTransaction.value.id_dompet),
+      id_kategori: Number(newTransaction.value.id_kategori),
+      jenis: newTransaction.value.jenis,
+      jumlah: Number(newTransaction.value.jumlah),
+      judul: newTransaction.value.judul,
+      deskripsi: newTransaction.value.deskripsi || null,
+      tanggal: newTransaction.value.tanggal
+    })
+
+    const created = response?.data?.data
+
+    if (created) {
+      transactions.value.unshift(normalizeTransaction(created))
+    } else {
+      await loadData()
+    }
+
+    showModal.value = false
+    resetForm()
+  } catch (error) {
+    if (isUnauthorized(error)) {
+      router.push('/login')
+      return
+    }
+
+    formError.value =
+      error?.response?.data?.message ||
+      'Unable to save the transaction. Please try again.'
+  } finally {
+    saving.value = false
+  }
 }
+
+const deleteTransaction = async (id) => {
+  if (!id) return
+
+  try {
+    await api.delete(`/transaksi/${id}`)
+
+    transactions.value = transactions.value.filter(
+      transaction => transaction.id_transaksi !== id
+    )
+  } catch (error) {
+    if (isUnauthorized(error)) {
+      router.push('/login')
+      return
+    }
+
+    window.alert(
+      error?.response?.data?.message ||
+      'Unable to delete the transaction.'
+    )
+  }
+}
+
+onMounted(loadData)
 </script>
-
-
 <style scoped>
 
 * {
@@ -670,11 +845,46 @@ const addTransaction = () => {
 }
 
 .empty-state {
-  padding: 50px;
+  min-height: 220px;
+  padding: 50px 20px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
   text-align: center;
+  color: #9aa1b2;
+}
 
-  color: #999;
+.empty-icon {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 12px;
+
+  border-radius: 50%;
+
+  background: #f0edff;
+  color: #6655e9;
+
+  font-size: 18px;
+}
+
+.empty-state strong {
+  margin-bottom: 5px;
+
+  color: #667085;
+  font-size: 12px;
+}
+
+.empty-state span {
+  color: #9aa1b2;
+  font-size: 10px;
 }
 
 
@@ -859,4 +1069,93 @@ const addTransaction = () => {
 
 }
 
+<style>
+/* API FORM / EXTRA FIELDS */
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 6px;
+  color: #a0a6b5;
+  font-size: 11px;
+}
+
+.form-group label span {
+  color: #a0a6b5;
+  font-weight: 400;
+}
+
+textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #e3e5ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #172033;
+  font: inherit;
+  font-size: 12px;
+  resize: vertical;
+  outline: none;
+}
+
+textarea:focus {
+  border-color: #6655e9;
+  box-shadow: 0 0 0 3px rgba(102, 85, 233, .08);
+}
+
+.transaction-wallet {
+  min-width: 100px;
+  color: #8e95a6;
+  font-size: 11px;
+  text-align: center;
+}
+
+.delete-button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 7px;
+  background: #fff1f1;
+  color: #e76565;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background: #ffe5e5;
+}
+
+.primary-button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.form-error {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid #ffd4d4;
+  border-radius: 8px;
+  background: #fff3f3;
+  color: #d94d4d;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .transaction-wallet {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
