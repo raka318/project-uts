@@ -36,11 +36,13 @@
         <span>Total Saved</span>
 
         <strong>
-          $3,420
+          {{ goals.length ? '$' + formatNumber(totalSaved) : '—' }}
         </strong>
 
         <p>
-          Across all your savings goals
+          {{ goals.length
+            ? 'Across all your savings goals'
+            : 'No savings data yet' }}
         </p>
       </div>
 
@@ -61,7 +63,26 @@
     </div>
 
 
-    <div class="goals-grid">
+    <!-- EMPTY STATE -->
+    <div
+      v-if="goals.length === 0"
+      class="empty-state"
+    >
+      <div class="empty-icon">🎯</div>
+
+      <strong>No savings goals yet.</strong>
+
+      <span>
+        Create a savings goal to start tracking your progress.
+      </span>
+    </div>
+
+
+    <!-- GOALS GRID -->
+    <div
+      v-else
+      class="goals-grid"
+    >
 
       <div
         v-for="goal in goals"
@@ -93,13 +114,13 @@
           <div
             class="donut"
             :style="{
-              '--progress': goal.percent + '%'
+              '--progress': Math.min(Number(goal.percent || 0), 100) + '%'
             }"
           >
 
             <div class="donut-inner">
               <strong>
-                {{ goal.percent }}%
+                {{ Math.min(Number(goal.percent || 0), 100) }}%
               </strong>
 
               <span>
@@ -113,11 +134,11 @@
           <div class="goal-info">
 
             <strong>
-              ${{ goal.saved }}
+              ${{ formatNumber(goal.saved) }}
             </strong>
 
             <span>
-              of ${{ goal.target }}
+              of ${{ formatNumber(goal.target) }}
             </span>
 
             <p>
@@ -137,47 +158,31 @@
 
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 
-const goals = ref([
-  {
-    id: 1,
-    name: 'New Laptop',
-    saved: '1,360',
-    target: '2,000',
-    percent: 68,
-    date: 'December 2026',
-    icon: '💻'
-  },
-  {
-    id: 2,
-    name: 'Emergency Fund',
-    saved: '1,200',
-    target: '3,000',
-    percent: 40,
-    date: 'March 2027',
-    icon: '🛡️'
-  },
-  {
-    id: 3,
-    name: 'Vacation',
-    saved: '650',
-    target: '1,500',
-    percent: 43,
-    date: 'June 2027',
-    icon: '✈️'
-  },
-  {
-    id: 4,
-    name: 'New Phone',
-    saved: '210',
-    target: '1,000',
-    percent: 21,
-    date: 'January 2027',
-    icon: '📱'
-  }
-])
+/*
+ * Empty by default.
+ *
+ * When your teammate's backend starts returning savings-goal data,
+ * populate this array from the API.
+ */
+const goals = ref([])
+
+
+const totalSaved = computed(() =>
+  goals.value.reduce(
+    (total, goal) => total + Number(String(goal.saved || 0).replace(/,/g, '')),
+    0
+  )
+)
+
+
+const formatNumber = (value) =>
+  Number(String(value || 0).replace(/,/g, '')).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
 
 
 const addGoal = () => {
@@ -185,8 +190,8 @@ const addGoal = () => {
   goals.value.push({
     id: Date.now(),
     name: 'New Goal',
-    saved: '0',
-    target: '1,000',
+    saved: 0,
+    target: 1000,
     percent: 0,
     date: '2027',
     icon: '🎯'
@@ -256,6 +261,7 @@ const addGoal = () => {
 
   display: flex;
   align-items: center;
+  justify-content: center;
 
   gap: 8px;
 
@@ -275,6 +281,13 @@ const addGoal = () => {
 
   box-shadow:
     0 8px 20px rgba(102, 85, 233, .2);
+
+  transition: .2s ease;
+}
+
+.primary-button:hover {
+  background: #5746dc;
+  transform: translateY(-1px);
 }
 
 
@@ -304,6 +317,8 @@ const addGoal = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  flex-shrink: 0;
 
   border-radius: 12px;
 
@@ -356,6 +371,63 @@ const addGoal = () => {
   color: #969cab;
 
   font-size: 11px;
+}
+
+
+/* EMPTY STATE */
+
+.empty-state {
+  min-height: 280px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 40px 20px;
+
+  border: 1px solid #e8eaf0;
+  border-radius: 14px;
+
+  background: white;
+
+  text-align: center;
+
+  color: #9aa1b2;
+}
+
+.empty-icon {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 12px;
+
+  border-radius: 12px;
+
+  background: #f0edff;
+
+  font-size: 20px;
+}
+
+.empty-state strong {
+  margin-bottom: 5px;
+
+  color: #667085;
+
+  font-size: 13px;
+}
+
+.empty-state span {
+  max-width: 320px;
+
+  color: #9aa1b2;
+
+  font-size: 10px;
+  line-height: 1.5;
 }
 
 
@@ -530,6 +602,10 @@ const addGoal = () => {
 
   .goal-content {
     gap: 18px;
+  }
+
+  .empty-state {
+    min-height: 240px;
   }
 
 }

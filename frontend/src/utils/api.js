@@ -1,19 +1,27 @@
-import axios from "axios";
+import axios from 'axios'
+
+const baseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
 
 const api = axios.create({
-    baseURL: "http://10.10.9.105:8000/api",
-    headers: {
-        "Content-Type": "application/json",
-    },
-});
+  baseURL: `${baseUrl}/api`,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
 
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`
-        }
-        return config;
-    });
+api.interceptors.request.use((config) => {
+  const token =
+    localStorage.getItem('token') ||
+    localStorage.getItem('auth_token') ||
+    localStorage.getItem('access_token')
 
-export default api;
+  if (token) {
+    config.headers = config.headers || {}
+    config.headers.Authorization = `Bearer ${token}`
+  }
+
+  return config
+}, (error) => Promise.reject(error))
+
+export default api
