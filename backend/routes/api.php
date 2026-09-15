@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('kategori', KategoriController::class);
     Route::apiResource('dompet', DompetController::class);
-    Route::apiResource('transaksi', TransaksiController::class)->except(['update']);
+    Route::apiResource('transaksi', TransaksiController::class);
     Route::apiResource('anggaran', AnggaranController::class);
     Route::apiResource('tujuan-tabungan', TujuanTabunganController::class);
 });

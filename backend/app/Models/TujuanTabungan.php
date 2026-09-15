@@ -9,7 +9,7 @@ class TujuanTabungan extends Model
 {
     use HasFactory;
 
-    protected $table = 'tujuan_tabungan';
+    protected $table = 'tujuan_tabungans';
 
     protected $primaryKey = 'id_tujuan';
 

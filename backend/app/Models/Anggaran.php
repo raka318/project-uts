@@ -9,7 +9,7 @@ class Anggaran extends Model
 {
     use HasFactory;
 
-    protected $table = 'anggaran';
+    protected $table = 'anggarans';
 
     protected $primaryKey = 'id_anggaran';
 
