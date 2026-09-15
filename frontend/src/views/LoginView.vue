@@ -578,6 +578,7 @@ const login = async () => {
         password: loginPassword.value
       },
       {
+        timeout: 10000,
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
@@ -603,61 +604,32 @@ const login = async () => {
 
     const token = response.data?.token
 
-
     if (!token) {
       throw new Error(
         'Login succeeded, but the backend did not return a token.'
       )
     }
 
+    localStorage.setItem('token', token)
+    localStorage.setItem('auth_token', token)
+    localStorage.setItem('access_token', token)
 
-    /* -----------------------------------------------------
-       SAVE TOKEN
-    ----------------------------------------------------- */
-
-    localStorage.setItem(
-      'auth_token',
-      token
-    )
-
-
-    /* -----------------------------------------------------
-       REMEMBER ME
-    ----------------------------------------------------- */
-
-    if (remember.value) {
-
-      localStorage.setItem(
-        'remember',
-        '1'
-      )
-
-    } else {
-
-      localStorage.removeItem(
-        'remember'
-      )
-
+    const savedUser = response.data?.user || null
+    if (savedUser) {
+      localStorage.setItem('user', JSON.stringify(savedUser))
     }
 
+    if (remember.value) {
+      localStorage.setItem('remember', '1')
+    } else {
+      localStorage.removeItem('remember')
+    }
 
-    /* -----------------------------------------------------
-       OPTIONAL: SAVE LOGIN USER STATUS
-    ----------------------------------------------------- */
-
-    localStorage.setItem(
-      'is_logged_in',
-      '1'
-    )
-
-
-    /* -----------------------------------------------------
-       SUCCESS
-    ----------------------------------------------------- */
+    localStorage.setItem('is_logged_in', '1')
 
     console.log('Login successful!')
 
-    router.push('/  ')
+    router.push('/')
 
 
   } catch (error) {
@@ -837,6 +809,7 @@ const register = async () => {
         password: registerPassword.value
       },
       {
+        timeout: 10000,
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'

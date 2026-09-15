@@ -9,6 +9,8 @@ import LoginView from '../views/LoginView.vue'
 import TransactionsView from '../views/TransactionsView.vue'
 import BudgetsView from '../views/BudgetsView.vue'
 import SavingsView from '../views/SavingsView.vue'
+import WalletsView from '../views/WalletsView.vue'
+import CategoriesView from '../views/CategoriesView.vue'
 
 // New views
 import ProfileView from '../views/ProfileView.vue'
@@ -108,6 +110,18 @@ const router = createRouter({
           path: 'settings',
           name: 'settings',
           component: SettingsView
+        },
+
+        {
+          path: 'wallets',
+          name: 'wallets',
+          component: WalletsView
+        },
+
+        {
+          path: 'categories',
+          name: 'categories',
+          component: CategoriesView
         }
 
       ]
@@ -115,6 +129,23 @@ const router = createRouter({
 
   ]
 
+})
+
+router.beforeEach((to, from, next) => {
+  const hasToken = Boolean(
+    localStorage.getItem('token') ||
+    localStorage.getItem('auth_token') ||
+    localStorage.getItem('access_token')
+  )
+
+  const isProtectedRoute = to.path !== '/login'
+
+  if (isProtectedRoute && !hasToken) {
+    next('/login')
+    return
+  }
+
+  next()
 })
 
 export default router
