@@ -14,7 +14,6 @@ import CategoriesView from '../views/CategoriesView.vue'
 
 // New views
 import ProfileView from '../views/ProfileView.vue'
-import SettingsView from '../views/SettingsView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -99,17 +98,6 @@ const router = createRouter({
           path: 'profile',
           name: 'profile',
           component: ProfileView
-        },
-
-
-        // =================================================
-        // SETTINGS
-        // =================================================
-
-        {
-          path: 'settings',
-          name: 'settings',
-          component: SettingsView
         },
 
         {

@@ -475,9 +475,12 @@
               </p>
             </div>
 
-            <button class="view-button">
-              View all
-            </button>
+            <button
+                class="view-button"
+                @click="router.push('/transactions')"
+              >
+                View all 
+              </button>
 
           </div>
 
@@ -565,9 +568,12 @@
               </p>
             </div>
 
-            <button class="view-button">
-              View budgets
-            </button>
+              <button
+                class="view-button"
+                @click="router.push('/budgets')"
+              >
+                View budgets
+              </button>
 
           </div>
 
@@ -643,9 +649,12 @@
               </p>
             </div>
 
-            <button class="plus-button">
-              +
-            </button>
+                  <button
+                    class="plus-button"
+                    @click="router.push('/savings')"
+                  >
+                    +
+                  </button>
 
           </div>
 
@@ -715,17 +724,17 @@
       ========================== -->
       <div class="quick-actions">
 
-        <button>
+        <button @click="router.push('/transactions')">
           <span>+</span>
           Add Transaction
         </button>
 
-        <button>
+        <button @click="router.push('/budgets')">
           <span>▣</span>
           Manage Budget
         </button>
 
-        <button>
+        <button @click="router.push('/savings')">
           <span>$</span>
           Add Savings Goal
         </button>
