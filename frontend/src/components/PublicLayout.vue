@@ -1,22 +1,38 @@
 <template>
-  <div class="app-layout">
+  <div class="app-layout" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
 
     <!-- =====================================================
          DESKTOP SIDEBAR
     ====================================================== -->
-    <aside class="desktop-sidebar">
+    <aside
+      class="desktop-sidebar"
+      :class="{ collapsed: sidebarCollapsed }"
+    >
 
       <!-- ================= BRAND ================= -->
       <div class="brand">
         <div class="brand-icon">$</div>
-        <span>MoneyFlow</span>
+
+        <span class="brand-name">
+          MoneyFlow
+        </span>
+
+        <button
+          class="sidebar-toggle"
+          type="button"
+          @click="toggleSidebar"
+          :aria-label="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+          :title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+        >
+          <span :class="{ rotated: sidebarCollapsed }">‹</span>
+        </button>
       </div>
 
 
       <!-- ================= NAVIGATION ================= -->
       <nav class="sidebar-nav">
 
-        <div class="nav-section-title">
+        <div class="nav-section-title nav-section-label">
           MENU
         </div>
 
@@ -33,7 +49,7 @@
             <path d="M9 21v-7h6v7"></path>
           </svg>
 
-          <span>Dashboard</span>
+          <span class="nav-label">Dashboard</span>
         </RouterLink>
 
 
@@ -57,7 +73,7 @@
             <path d="M8 16h5"></path>
           </svg>
 
-          <span>Transactions</span>
+          <span class="nav-label">Transactions</span>
         </RouterLink>
 
 
@@ -76,7 +92,7 @@
             <path d="M19 16V5"></path>
           </svg>
 
-          <span>Budgets</span>
+          <span class="nav-label">Budgets</span>
         </RouterLink>
 
 
@@ -94,12 +110,12 @@
             ></path>
           </svg>
 
-          <span>Savings</span>
+          <span class="nav-label">Savings</span>
         </RouterLink>
 
 
         <!-- ================= PERSONAL ================= -->
-        <div class="nav-section-title personal-title">
+        <div class="nav-section-title nav-section-label personal-title">
           PERSONAL
         </div>
 
@@ -122,29 +138,7 @@
             ></path>
           </svg>
 
-          <span>Profile</span>
-        </RouterLink>
-
-
-        <!-- SETTINGS -->
-        <RouterLink
-          to="/settings"
-          class="nav-item"
-          :class="{ active: route.path.startsWith('/settings') }"
-        >
-          <svg viewBox="0 0 24 24">
-            <circle
-              cx="12"
-              cy="12"
-              r="3"
-            ></circle>
-
-            <path
-              d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20h-2.5v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.1a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.4 8.6l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V5h2.5v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1V14h-.1a1.7 1.7 0 0 0-1.6 1z"
-            ></path>
-          </svg>
-
-          <span>Settings</span>
+          <span class="nav-label">Profile</span>
         </RouterLink>
 
       </nav>
@@ -184,11 +178,11 @@
         >
 
           <div class="avatar">
-            JD
+            {{ profile.initials }}
           </div>
 
           <div class="sidebar-user-info">
-            <strong>John Doe</strong>
+            <strong>{{ profile.name || 'User' }}</strong>
             <span>Personal Account</span>
           </div>
 
@@ -229,7 +223,7 @@
         aria-label="Open profile menu"
       >
         <div class="avatar">
-          JD
+          {{ profile.initials }}
         </div>
       </button>
 
@@ -250,13 +244,13 @@
         <div class="dropdown-user">
 
           <div class="avatar large">
-            JD
+            {{ profile.initials }}
           </div>
 
           <div class="dropdown-user-info">
 
             <strong>
-              John Doe
+              {{ profile.name || 'User' }}
             </strong>
 
             <span>
@@ -312,7 +306,7 @@
             ></circle>
 
             <path
-              d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20h-2.5v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.1a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.4 8.6l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1V14h-.1a1.7 1.7 0 0 0-1.6 1z"
+              d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20h-2.5v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.1a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.4 8.6l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V5h2.5v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1V14h-.1a1.7 1.7 0 0 0-1.6 1z"
             ></path>
           </svg>
 
@@ -348,7 +342,8 @@
 
     </Transition>
 
-        <!-- =========================
+
+    <!-- =========================
          MOBILE BOTTOM NAVIGATION
     ========================== -->
     <nav class="mobile-bottom-nav">
@@ -474,13 +469,13 @@
           >
 
             <div class="avatar">
-              JD
+              {{ profile.initials }}
             </div>
 
             <div class="desktop-user-info">
 
               <strong>
-                John Doe
+                {{ profile.name || 'User' }}
               </strong>
 
               <span>
@@ -513,13 +508,13 @@
               <div class="dropdown-user">
 
                 <div class="avatar large">
-                  JD
+                  {{ profile.initials }}
                 </div>
 
                 <div class="dropdown-user-info">
 
                   <strong>
-                    John Doe
+                    {{ profile.name || 'User' }}
                   </strong>
 
                   <span>
@@ -575,7 +570,7 @@
                   ></circle>
 
                   <path
-                    d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20h-2.5v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.1a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.4 8.6l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V5h2.5v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1V14h-.1a1.7 1.7 0 0 0-1.6 1z"
+                    d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20h-2.5v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.1a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.4 8.6l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1V14h-.1a1.7 1.7 0 0 0-1.6 1z"
                   ></path>
                 </svg>
 
@@ -632,23 +627,119 @@
 
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 
 const route = useRoute()
 const router = useRouter()
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+const SIDEBAR_STORAGE_KEY = 'moneyflow_sidebar_collapsed'
+
+const sidebarCollapsed = ref(
+  localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'true'
+)
+
+const toggleSidebar = () => {
+  sidebarCollapsed.value = !sidebarCollapsed.value
+
+  localStorage.setItem(
+    SIDEBAR_STORAGE_KEY,
+    String(sidebarCollapsed.value)
+  )
+}
+
+
+/* =========================================
+   PROFILE
+========================================= */
+
 const profileMenuOpen = ref(false)
+const loadingProfile = ref(false)
+
+const profile = ref({
+  name: '',
+  email: '',
+  initials: 'U',
+})
+
+/* =========================================
+   PROFILE
+========================================= */
+
+const getInitials = (name) => {
+  if (!name) return 'U'
+
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase()
+  }
+
+  return (parts[0][0] + parts[1][0]).toUpperCase()
+}
+
+const clearAuth = () => {
+  localStorage.removeItem('auth_token')
+  localStorage.removeItem('remember')
+}
+
+const fetchProfile = async () => {
+  const token = localStorage.getItem('auth_token')
+
+  if (!token) {
+    return
+  }
+
+  loadingProfile.value = true
+
+  try {
+    const response = await axios.get(`${API_BASE}/api/profile`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    })
+
+    const user = response.data?.data
+
+    if (user) {
+      profile.value = {
+        name: user.name || 'User',
+        email: user.email || '',
+        initials: getInitials(user.name),
+      }
+    }
+  } catch (error) {
+    if (error.response?.status === 401) {
+      clearAuth()
+      router.push('/login')
+    }
+  } finally {
+    loadingProfile.value = false
+  }
+}
 
 
 /* =========================================
    PROFILE MENU
 ========================================= */
 
-const toggleProfileMenu = () => {
+const toggleProfileMenu = async () => {
   profileMenuOpen.value = !profileMenuOpen.value
-}
 
+  // Refresh the profile whenever the menu opens.
+  // This also picks up changes made on the Profile page.
+  if (profileMenuOpen.value) {
+    await fetchProfile()
+  }
+}
 
 const closeProfileMenu = () => {
   profileMenuOpen.value = false
@@ -659,20 +750,56 @@ const closeProfileMenu = () => {
    LOGOUT
 ========================================= */
 
-const logout = () => {
+const logout = async () => {
   profileMenuOpen.value = false
 
-  /*
-   * For now this simply returns the user
-   * to the login page.
-   *
-   * Later, when we connect Laravel/API
-   * authentication, we can put the actual
-   * logout request here.
-   */
+  const token = localStorage.getItem('auth_token')
 
-  router.push('/login')
+  try {
+    if (token) {
+      await axios.post(
+        `${API_BASE}/api/logout`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        },
+      )
+    }
+  } catch (error) {
+    // Clear the local token even if the API request fails.
+  } finally {
+    clearAuth()
+    router.push('/login')
+  }
 }
+
+
+/* =========================================
+   CLOSE MENU WITH ESC
+========================================= */
+
+const handleEscape = (event) => {
+  if (event.key === 'Escape') {
+    closeProfileMenu()
+  }
+}
+
+
+/* =========================================
+   START
+========================================= */
+
+onMounted(() => {
+  fetchProfile()
+  document.addEventListener('keydown', handleEscape)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleEscape)
+})
 </script>
 
 
@@ -718,6 +845,14 @@ const logout = () => {
   border-right: 1px solid #edf0f6;
 
   z-index: 100;
+
+  overflow: hidden;
+
+  transition: width 0.25s ease;
+}
+
+.desktop-sidebar.collapsed {
+  width: 76px;
 }
 
 
@@ -739,6 +874,10 @@ const logout = () => {
   font-weight: 750;
 
   color: #172033;
+
+  position: relative;
+
+  transition: padding 0.25s ease, justify-content 0.25s ease;
 }
 
 .brand-icon {
@@ -749,6 +888,8 @@ const logout = () => {
   align-items: center;
   justify-content: center;
 
+  flex-shrink: 0;
+
   background: #6c63ff;
   color: white;
 
@@ -756,6 +897,136 @@ const logout = () => {
 
   font-size: 18px;
   font-weight: 700;
+}
+
+.brand-name {
+  white-space: nowrap;
+  opacity: 1;
+  overflow: hidden;
+
+  transition:
+    opacity 0.18s ease,
+    width 0.25s ease;
+}
+
+.sidebar-toggle {
+  position: absolute;
+
+  right: 12px;
+
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #8f96a8;
+
+  font-size: 25px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    right 0.25s ease,
+    transform 0.25s ease;
+}
+
+.sidebar-toggle:hover {
+  background: #f1efff;
+  color: #6655e9;
+}
+
+.sidebar-toggle span {
+  display: block;
+
+  transition: transform 0.25s ease;
+}
+
+.sidebar-toggle span.rotated {
+  transform: rotate(180deg);
+}
+
+.sidebar-toggle:focus-visible {
+  outline: 2px solid #6655e9;
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   COLLAPSED SIDEBAR
+========================================================= */
+
+.desktop-sidebar.collapsed .brand {
+  justify-content: center;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.desktop-sidebar.collapsed .brand-name {
+  width: 0;
+  margin: 0;
+  opacity: 0;
+}
+
+.desktop-sidebar.collapsed .sidebar-toggle {
+  right: 50%;
+  transform: translateX(50%);
+}
+
+.desktop-sidebar.collapsed .nav-item {
+  justify-content: center;
+  gap: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.desktop-sidebar.collapsed .nav-label {
+  width: 0;
+  margin: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.desktop-sidebar.collapsed .nav-section-label {
+  height: 0;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.desktop-sidebar.collapsed .help-card {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.desktop-sidebar.collapsed .help-card .help-text,
+.desktop-sidebar.collapsed .help-card .help-arrow {
+  display: none;
+}
+
+.desktop-sidebar.collapsed .sidebar-user {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.desktop-sidebar.collapsed .sidebar-user-info,
+.desktop-sidebar.collapsed .logout-arrow {
+  display: none;
 }
 
 
@@ -778,6 +1049,14 @@ const logout = () => {
   letter-spacing: 1.2px;
 
   color: #a3a9b8;
+
+  white-space: nowrap;
+
+  transition:
+    opacity 0.15s ease,
+    height 0.25s ease,
+    margin 0.25s ease,
+    padding 0.25s ease;
 }
 
 .personal-title {
@@ -812,7 +1091,18 @@ const logout = () => {
 
   transition:
     background 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    padding 0.25s ease,
+    gap 0.25s ease;
+}
+
+.nav-label {
+  white-space: nowrap;
+  opacity: 1;
+
+  transition:
+    opacity 0.15s ease,
+    width 0.25s ease;
 }
 
 .nav-item svg {
@@ -874,6 +1164,10 @@ const logout = () => {
   border-radius: 12px;
 
   background: #f5f3ff;
+
+  transition:
+    padding 0.25s ease,
+    justify-content 0.25s ease;
 }
 
 .help-icon {
@@ -940,7 +1234,10 @@ const logout = () => {
 
   cursor: pointer;
 
-  transition: opacity 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    padding 0.25s ease,
+    justify-content 0.25s ease;
 }
 
 .sidebar-user:hover {
@@ -978,6 +1275,8 @@ const logout = () => {
   flex: 1;
 
   gap: 3px;
+
+  min-width: 0;
 }
 
 .sidebar-user-info strong {
@@ -1004,6 +1303,12 @@ const logout = () => {
   min-height: 100vh;
 
   margin-left: 270px;
+
+  transition: margin-left 0.25s ease;
+}
+
+.app-layout.sidebar-collapsed .main-area {
+  margin-left: 76px;
 }
 
 
@@ -1179,14 +1484,18 @@ const logout = () => {
 .desktop-profile-dropdown {
   top: 58px;
   right: 0;
+  display: block;
 }
 
 
-/* Mobile */
+/* Mobile dropdown is hidden on desktop.
+   The desktop and mobile menus share the same
+   reactive state, so only the correct one is visible. */
 
 .mobile-profile-dropdown {
   top: 72px;
   right: 10px;
+  display: none;
 }
 
 
@@ -1373,8 +1682,16 @@ const logout = () => {
     width: 220px;
   }
 
+  .desktop-sidebar.collapsed {
+    width: 76px;
+  }
+
   .main-area {
     margin-left: 220px;
+  }
+
+  .app-layout.sidebar-collapsed .main-area {
+    margin-left: 76px;
   }
 
   .brand {
@@ -1417,7 +1734,7 @@ const logout = () => {
   ======================================================= */
 
   .main-area {
-    margin-left: 0;
+    margin-left: 0 !important;
 
     padding-top: 64px;
 
@@ -1510,6 +1827,11 @@ const logout = () => {
      MOBILE PROFILE DROPDOWN
   ======================================================= */
 
+  /* Only show the mobile dropdown on mobile. */
+  .desktop-profile-dropdown {
+    display: none;
+  }
+
   .mobile-profile-dropdown {
     display: block;
 
@@ -1538,36 +1860,25 @@ const logout = () => {
      MOBILE BOTTOM NAVIGATION
   ======================================================= */
 
-  /*
-     THIS IS THE IMPORTANT PART.
-
-     The bottom navigation exists ONLY inside
-     the mobile media query.
-  */
-
-/* DESKTOP */
-.mobile-bottom-nav {
-  display: none;
-}
-
-
-/* MOBILE */
-@media (max-width: 700px) {
-
   .mobile-bottom-nav {
     display: grid;
+
     position: fixed;
+
     left: 0;
     right: 0;
     bottom: 0;
+
     height: 64px;
+
     background: #ffffff;
+
     border-top: 1px solid #e8eaf0;
+
     z-index: 1000;
+
     grid-template-columns: repeat(4, 1fr);
   }
-
-}
 
 
   /* =======================================================
