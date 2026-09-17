@@ -1,349 +1,307 @@
 <template>
   <section class="page">
 
-    <!-- LOCK SCREEN -->
-    <div
-      v-if="!unlocked"
-      class="locked-state"
-    >
-      <div class="lock-card">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <span class="eyebrow">PERSONAL ACCOUNT</span>
 
-        <div class="lock-icon">
-          🔒
-        </div>
-
-        <span class="eyebrow">PRIVATE MONEY AREA</span>
-
-        <h1>Wallets are locked</h1>
+        <h1>Wallets</h1>
 
         <p>
-          Confirm your account password before viewing your wallet balances.
+          Manage the accounts and wallets you use for your money.
         </p>
-
-        <form
-          class="unlock-form"
-          @submit.prevent="unlockWallet"
-        >
-          <label>
-            Account password
-
-            <input
-              v-model="password"
-              type="password"
-              autocomplete="current-password"
-              placeholder="Enter your password"
-              required
-              :disabled="unlocking"
-            />
-          </label>
-
-          <p
-            v-if="unlockError"
-            class="form-error"
-          >
-            {{ unlockError }}
-          </p>
-
-          <button
-            type="submit"
-            class="primary-button unlock-button"
-            :disabled="unlocking || !password"
-          >
-            {{ unlocking ? 'Checking...' : 'Unlock Wallets' }}
-          </button>
-        </form>
-
-        <span class="security-note">
-          Your password is checked by the Laravel backend.
-          It is not stored in your browser.
-        </span>
-
       </div>
+
+      <button
+        class="primary-button"
+        type="button"
+        @click="openCreate"
+      >
+        <span>+</span>
+        Add Wallet
+      </button>
     </div>
 
 
-    <!-- WALLET PAGE -->
-    <div v-else>
+    <!-- ERROR -->
+    <div
+      v-if="error"
+      class="alert"
+    >
+      {{ error }}
+    </div>
 
-      <div class="page-header">
-        <div>
-          <span class="eyebrow">PERSONAL ACCOUNT</span>
 
-          <h1>Wallets</h1>
+    <!-- LOADING -->
+    <div
+      v-if="loading"
+      class="state-card"
+    >
+      <div class="state-icon">
+        ↻
+      </div>
+
+      <strong>
+        Loading wallets...
+      </strong>
+
+      <span>
+        Please wait while your wallets are loaded.
+      </span>
+    </div>
+
+
+    <!-- WALLET LIST -->
+    <div
+      v-else-if="wallets.length"
+      class="wallet-grid"
+    >
+      <article
+        v-for="wallet in wallets"
+        :key="wallet.id_dompet"
+        class="wallet-card"
+      >
+
+        <div class="wallet-top">
+
+          <div class="wallet-icon">
+            {{ walletIcon(wallet.jenis) }}
+          </div>
+
+          <div class="wallet-actions">
+
+            <button
+              class="icon-button"
+              type="button"
+              title="Edit"
+              @click="openEdit(wallet)"
+            >
+              ✎
+            </button>
+
+            <button
+              class="icon-button danger"
+              type="button"
+              title="Delete"
+              @click="deleteWallet(wallet)"
+            >
+              ×
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="wallet-name">
+          {{ wallet.nama_dompet }}
+        </div>
+
+        <div class="wallet-type">
+          {{ formatType(wallet.jenis) }}
+        </div>
+
+
+        <div class="wallet-balance">
+
+          <span>
+            Balance
+          </span>
+
+          <strong>
+            {{ formatMoney(wallet.saldo, wallet.mata_uang) }}
+          </strong>
+
+        </div>
+
+
+        <div class="currency">
+          {{ wallet.mata_uang || 'IDR' }}
+        </div>
+
+      </article>
+    </div>
+
+
+    <!-- EMPTY STATE -->
+    <div
+      v-else
+      class="state-card"
+    >
+
+      <div class="state-icon">
+        ▣
+      </div>
+
+      <strong>
+        No wallets yet
+      </strong>
+
+      <span>
+        Create your first wallet so you can select it when adding transactions.
+      </span>
+
+      <button
+        class="secondary-button"
+        type="button"
+        @click="openCreate"
+      >
+        Create a wallet
+      </button>
+
+    </div>
+
+
+    <!-- ADD / EDIT MODAL -->
+    <div
+      v-if="showModal"
+      class="modal-backdrop"
+      @click.self="closeModal"
+    >
+
+      <div class="modal">
+
+        <button
+          class="close-button"
+          type="button"
+          @click="closeModal"
+        >
+          ×
+        </button>
+
+
+        <div class="modal-header">
+
+          <span class="eyebrow">
+            WALLET
+          </span>
+
+          <h2>
+            {{ editingId ? 'Edit Wallet' : 'Add Wallet' }}
+          </h2>
 
           <p>
-            Manage the accounts and wallets you use for your money.
+            {{
+              editingId
+                ? 'Update your wallet details.'
+                : 'Add an account where you keep your money.'
+            }}
           </p>
+
         </div>
 
-        <button
-          class="primary-button"
-          type="button"
-          @click="openCreate"
-        >
-          <span>+</span>
-          Add Wallet
-        </button>
-      </div>
+
+        <form @submit.prevent="saveWallet">
+
+          <!-- WALLET NAME -->
+          <label>
+            Wallet name
+
+            <input
+              v-model="form.nama_dompet"
+              type="text"
+              placeholder="Example: BCA"
+              maxlength="100"
+              required
+            />
+          </label>
 
 
-      <div
-        v-if="error"
-        class="alert"
-      >
-        {{ error }}
-      </div>
+          <!-- TYPE -->
+          <label>
+            Type
 
-
-      <div
-        v-if="loading"
-        class="state-card"
-      >
-        <div class="state-icon">
-          ↻
-        </div>
-
-        <strong>
-          Loading wallets...
-        </strong>
-
-        <span>
-          Please wait while your wallets are loaded.
-        </span>
-      </div>
-
-
-      <div
-        v-else-if="wallets.length"
-        class="wallet-grid"
-      >
-        <article
-          v-for="wallet in wallets"
-          :key="wallet.id_dompet"
-          class="wallet-card"
-        >
-          <div class="wallet-top">
-
-            <div class="wallet-icon">
-              {{ walletIcon(wallet.jenis) }}
-            </div>
-
-            <div class="wallet-actions">
-
-              <button
-                class="icon-button"
-                type="button"
-                title="Edit"
-                @click="openEdit(wallet)"
-              >
-                ✎
-              </button>
-
-              <button
-                class="icon-button danger"
-                type="button"
-                title="Delete"
-                @click="deleteWallet(wallet)"
-              >
-                ×
-              </button>
-
-            </div>
-
-          </div>
-
-          <div class="wallet-name">
-            {{ wallet.nama_dompet }}
-          </div>
-
-          <div class="wallet-type">
-            {{ formatType(wallet.jenis) }}
-          </div>
-
-          <div class="wallet-balance">
-            <span>
-              Balance
-            </span>
-
-            <strong>
-              {{ formatMoney(wallet.saldo, wallet.mata_uang) }}
-            </strong>
-          </div>
-
-          <div class="currency">
-            {{ wallet.mata_uang || 'IDR' }}
-          </div>
-        </article>
-      </div>
-
-
-      <div
-        v-else
-        class="state-card"
-      >
-        <div class="state-icon">
-          ▣
-        </div>
-
-        <strong>
-          No wallets yet
-        </strong>
-
-        <span>
-          Create your first wallet so you can select it when adding transactions.
-        </span>
-
-        <button
-          class="secondary-button"
-          type="button"
-          @click="openCreate"
-        >
-          Create a wallet
-        </button>
-      </div>
-
-
-      <!-- ADD / EDIT MODAL -->
-      <div
-        v-if="showModal"
-        class="modal-backdrop"
-        @click.self="closeModal"
-      >
-        <div class="modal">
-
-          <button
-            class="close-button"
-            type="button"
-            @click="closeModal"
-          >
-            ×
-          </button>
-
-          <div class="modal-header">
-
-            <span class="eyebrow">
-              WALLET
-            </span>
-
-            <h2>
-              {{ editingId ? 'Edit Wallet' : 'Add Wallet' }}
-            </h2>
-
-            <p>
-              {{
-                editingId
-                  ? 'Update your wallet details.'
-                  : 'Add an account where you keep your money.'
-              }}
-            </p>
-
-          </div>
-
-
-          <form @submit.prevent="saveWallet">
-
-            <label>
-              Wallet name
-
-              <input
-                v-model="form.nama_dompet"
-                type="text"
-                placeholder="Example: BCA"
-                maxlength="100"
-                required
-              />
-            </label>
-
-
-            <label>
-              Type
-
-              <select
-                v-model="form.jenis"
-                required
-              >
-                <option value="cash">
-                  Cash
-                </option>
-
-                <option value="bank">
-                  Bank
-                </option>
-
-                <option value="ewallet">
-                  E-Wallet
-                </option>
-
-                <option value="tabungan">
-                  Savings
-                </option>
-              </select>
-            </label>
-
-
-            <label>
-              Balance
-
-              <input
-                v-model="form.saldo"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0"
-                required
-              />
-            </label>
-
-
-            <label>
-              Currency
-
-              <input
-                v-model="form.mata_uang"
-                type="text"
-                maxlength="10"
-                placeholder="IDR"
-                required
-              />
-            </label>
-
-
-            <p
-              v-if="formError"
-              class="form-error"
+            <select
+              v-model="form.jenis"
+              required
             >
-              {{ formError }}
-            </p>
+              <option value="cash">
+                Cash
+              </option>
+
+              <option value="bank">
+                Bank
+              </option>
+
+              <option value="ewallet">
+                E-Wallet
+              </option>
+
+              <option value="tabungan">
+                Savings
+              </option>
+            </select>
+          </label>
 
 
-            <div class="modal-actions">
+          <!-- BALANCE -->
+          <label>
+            Balance
 
-              <button
-                type="button"
-                class="cancel-button"
-                @click="closeModal"
-              >
-                Cancel
-              </button>
+            <input
+              v-model="form.saldo"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0"
+              required
+            />
+          </label>
 
-              <button
-                type="submit"
-                class="primary-button"
-                :disabled="saving"
-              >
-                {{
-                  saving
-                    ? 'Saving...'
-                    : editingId
-                      ? 'Save Changes'
-                      : 'Add Wallet'
-                }}
-              </button>
 
-            </div>
+          <!-- CURRENCY -->
+          <label>
+            Currency
 
-          </form>
-        </div>
+            <input
+              v-model="form.mata_uang"
+              type="text"
+              maxlength="10"
+              placeholder="IDR"
+              required
+            />
+          </label>
+
+
+          <!-- FORM ERROR -->
+          <p
+            v-if="formError"
+            class="form-error"
+          >
+            {{ formError }}
+          </p>
+
+
+          <!-- ACTIONS -->
+          <div class="modal-actions">
+
+            <button
+              type="button"
+              class="cancel-button"
+              @click="closeModal"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="primary-button"
+              :disabled="saving"
+            >
+              {{
+                saving
+                  ? 'Saving...'
+                  : editingId
+                    ? 'Save Changes'
+                    : 'Add Wallet'
+              }}
+            </button>
+
+          </div>
+
+        </form>
+
       </div>
 
     </div>
@@ -375,24 +333,6 @@ const formError = ref('')
 const showModal = ref(false)
 
 const editingId = ref(null)
-
-
-/*
- * Wallet security
- *
- * `unlocked` is intentionally kept only in Vue memory.
- * We do NOT store it in localStorage.
- *
- * So after leaving/re-entering this page, the password
- * must be entered again.
- */
-const unlocked = ref(false)
-
-const unlocking = ref(false)
-
-const password = ref('')
-
-const unlockError = ref('')
 
 
 const emptyForm = () => ({
@@ -427,15 +367,18 @@ function getErrorMessage(
     return message
   }
 
+
   const errors =
     err?.response?.data?.errors
 
   if (errors) {
+
     const firstError =
       Object.values(errors)?.[0]?.[0]
 
     return firstError || fallback
   }
+
 
   return (
     err?.message ||
@@ -445,37 +388,33 @@ function getErrorMessage(
 
 
 /*
- * Verify the current account password.
+ * LOAD WALLETS
  *
- * Backend endpoint:
- * POST /api/verify-password
- *
- * The Laravel endpoint should use auth:sanctum and Hash::check().
+ * No password verification is required anymore.
  */
-async function unlockWallet() {
-  unlocking.value = true
+async function loadWallets() {
+  loading.value = true
 
-  unlockError.value = ''
+  error.value = ''
 
 
   try {
-    await api.post(
-      '/verify-password',
-      {
-        password: password.value
-      }
-    )
+
+    const response =
+      await api.get('/dompet')
 
 
-    unlocked.value = true
-
-    password.value = ''
-
-    await loadWallets()
+    wallets.value =
+      Array.isArray(
+        response.data?.data
+      )
+        ? response.data.data
+        : []
 
   } catch (err) {
+
     console.error(
-      'Wallet unlock error:',
+      'Load wallets error:',
       err
     )
 
@@ -490,58 +429,8 @@ async function unlockWallet() {
     }
 
 
-    if (
-      err?.response?.status === 422
-    ) {
-      unlockError.value =
-        getErrorMessage(
-          err,
-          'Incorrect password.'
-        )
-
-      return
-    }
-
-
-    unlockError.value =
-      getErrorMessage(
-        err,
-        'Could not verify your password.'
-      )
-
-  } finally {
-    unlocking.value = false
-  }
-}
-
-
-async function loadWallets() {
-  loading.value = true
-  error.value = ''
-
-  try {
-    const response =
-      await api.get('/dompet')
-
-    wallets.value =
-      Array.isArray(
-        response.data?.data
-      )
-        ? response.data.data
-        : []
-
-  } catch (err) {
-
-    if (
-      err?.response?.status === 401
-    ) {
-      window.location.href =
-        '/login'
-
-      return
-    }
-
     wallets.value = []
+
 
     error.value =
       getErrorMessage(
@@ -550,12 +439,18 @@ async function loadWallets() {
       )
 
   } finally {
+
     loading.value = false
+
   }
 }
 
 
+/*
+ * OPEN CREATE MODAL
+ */
 function openCreate() {
+
   editingId.value = null
 
   resetForm()
@@ -566,9 +461,14 @@ function openCreate() {
 }
 
 
+/*
+ * OPEN EDIT MODAL
+ */
 function openEdit(wallet) {
+
   editingId.value =
     wallet.id_dompet
+
 
   Object.assign(
     form,
@@ -587,22 +487,32 @@ function openEdit(wallet) {
     }
   )
 
+
   formError.value = ''
 
   showModal.value = true
 }
 
 
+/*
+ * CLOSE MODAL
+ */
 function closeModal() {
+
   if (saving.value) {
     return
   }
+
 
   showModal.value = false
 }
 
 
+/*
+ * SAVE WALLET
+ */
 async function saveWallet() {
+
   saving.value = true
 
   formError.value = ''
@@ -611,6 +521,7 @@ async function saveWallet() {
 
 
   const payload = {
+
     nama_dompet:
       form.nama_dompet.trim(),
 
@@ -623,11 +534,15 @@ async function saveWallet() {
     mata_uang:
       form.mata_uang.trim() ||
       'IDR',
+
   }
 
 
   try {
 
+    /*
+     * EDIT EXISTING WALLET
+     */
     if (editingId.value) {
 
       const response =
@@ -635,6 +550,7 @@ async function saveWallet() {
           `/dompet/${editingId.value}`,
           payload
         )
+
 
       const updated =
         response.data?.data
@@ -651,8 +567,10 @@ async function saveWallet() {
 
 
         if (index !== -1) {
+
           wallets.value[index] =
             updated
+
         }
 
       } else {
@@ -661,7 +579,12 @@ async function saveWallet() {
 
       }
 
-    } else {
+    }
+
+    /*
+     * CREATE NEW WALLET
+     */
+    else {
 
       const response =
         await api.post(
@@ -669,16 +592,21 @@ async function saveWallet() {
           payload
         )
 
+
       const created =
         response.data?.data
 
 
       if (created) {
+
         wallets.value.unshift(
           created
         )
+
       } else {
+
         await loadWallets()
+
       }
 
     }
@@ -688,9 +616,16 @@ async function saveWallet() {
 
   } catch (err) {
 
+    console.error(
+      'Save wallet error:',
+      err
+    )
+
+
     if (
       err?.response?.status === 401
     ) {
+
       window.location.href =
         '/login'
 
@@ -712,7 +647,11 @@ async function saveWallet() {
 }
 
 
+/*
+ * DELETE WALLET
+ */
 async function deleteWallet(wallet) {
+
   if (
     !window.confirm(
       `Delete "${wallet.nama_dompet}"?`
@@ -741,9 +680,16 @@ async function deleteWallet(wallet) {
 
   } catch (err) {
 
+    console.error(
+      'Delete wallet error:',
+      err
+    )
+
+
     if (
       err?.response?.status === 401
     ) {
+
       window.location.href =
         '/login'
 
@@ -756,74 +702,98 @@ async function deleteWallet(wallet) {
         err,
         'Could not delete this wallet.'
       )
+
   }
 }
 
 
+/*
+ * FORMAT MONEY
+ */
 function formatMoney(
   value,
   currency = 'IDR'
 ) {
+
   const amount =
     Number(value || 0)
 
 
-  /*
-   * Use the wallet's own currency.
-   *
-   * This fixes the previous behavior where every
-   * wallet was displayed as USD.
-   */
   try {
 
     return new Intl.NumberFormat(
       'en-US',
       {
         style: 'currency',
+
         currency:
-          String(currency || 'IDR')
-            .toUpperCase(),
+          String(
+            currency || 'IDR'
+          ).toUpperCase(),
+
         maximumFractionDigits: 2,
       }
     ).format(amount)
 
   } catch {
-    return `${currency || 'IDR'} ${amount.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })}`
+
+    return `${currency || 'IDR'} ${amount.toLocaleString(
+      'en-US',
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }
+    )}`
+
   }
 }
 
 
+/*
+ * FORMAT WALLET TYPE
+ */
 function formatType(type) {
+
   return {
     cash: 'Cash',
     bank: 'Bank',
     ewallet: 'E-Wallet',
     tabungan: 'Savings',
   }[type] || type
+
 }
 
 
+/*
+ * WALLET ICON
+ */
 function walletIcon(type) {
+
   return {
     cash: '💵',
     bank: '🏦',
     ewallet: '📱',
     tabungan: '🎯',
   }[type] || '▣'
+
 }
 
 
+/*
+ * LOAD WALLETS WHEN PAGE OPENS
+ *
+ * This is the important change.
+ *
+ * Previously:
+ *   Page → Password → Verify → Load wallets
+ *
+ * Now:
+ *   Page → Load wallets
+ */
 onMounted(() => {
-  /*
-   * Do not load wallet balances until the password
-   * has been verified by Laravel.
-   */
+  loadWallets()
 })
-</script>
-
+</script> 
 
 <style scoped>
 .page {

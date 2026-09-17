@@ -1,3 +1,4 @@
+```vue
 <template>
   <div class="profile-page">
 
@@ -16,6 +17,7 @@
       </div>
     </div>
 
+
     <!-- LOADING -->
     <div
       v-if="loading"
@@ -27,6 +29,7 @@
         Loading your profile...
       </span>
     </div>
+
 
     <!-- ERROR -->
     <div
@@ -56,6 +59,7 @@
       </div>
     </div>
 
+
     <!-- PROFILE -->
     <div
       v-else
@@ -64,11 +68,13 @@
 
       <!-- PERSONAL HERO -->
       <div class="profile-card">
+
         <div class="profile-avatar">
           {{ userInitials }}
         </div>
 
         <div class="profile-main">
+
           <span class="profile-label">
             YOUR MONEYFLOW ACCOUNT
           </span>
@@ -82,6 +88,7 @@
           </p>
 
           <div class="profile-badges">
+
             <span class="profile-badge">
               ✦ Personal Account
             </span>
@@ -92,18 +99,23 @@
             >
               Member since {{ shortCreatedAt }}
             </span>
+
           </div>
+
         </div>
+
       </div>
 
 
       <!-- QUICK PERSONAL MESSAGE -->
       <div class="personal-note">
+
         <div class="note-icon">
           💜
         </div>
 
         <div>
+
           <strong>
             Keep your finances personal.
           </strong>
@@ -113,7 +125,9 @@
             while your wallets, budgets, transactions, and savings
             stay connected to your account.
           </p>
+
         </div>
+
       </div>
 
 
@@ -121,7 +135,9 @@
       <section class="settings-section">
 
         <div class="section-header">
+
           <div>
+
             <h2>
               Personal Information
             </h2>
@@ -129,17 +145,23 @@
             <p>
               The information connected to your account.
             </p>
+
           </div>
+
         </div>
+
 
         <div class="information-card">
 
+          <!-- FULL NAME -->
           <div class="information-row">
+
             <div class="information-icon">
               👤
             </div>
 
             <div class="information-content">
+
               <span class="information-label">
                 Full name
               </span>
@@ -147,17 +169,24 @@
               <strong>
                 {{ user.name || 'Not provided' }}
               </strong>
+
             </div>
+
           </div>
+
 
           <div class="row-divider"></div>
 
+
+          <!-- EMAIL -->
           <div class="information-row">
+
             <div class="information-icon">
               @
             </div>
 
             <div class="information-content">
+
               <span class="information-label">
                 Email address
               </span>
@@ -165,17 +194,24 @@
               <strong>
                 {{ user.email || 'Not provided' }}
               </strong>
+
             </div>
+
           </div>
+
 
           <div class="row-divider"></div>
 
+
+          <!-- ACCOUNT ID -->
           <div class="information-row">
+
             <div class="information-icon">
               #
             </div>
 
             <div class="information-content">
+
               <span class="information-label">
                 Account ID
               </span>
@@ -183,17 +219,24 @@
               <strong>
                 {{ user.id || '—' }}
               </strong>
+
             </div>
+
           </div>
+
 
           <div class="row-divider"></div>
 
+
+          <!-- MEMBER SINCE -->
           <div class="information-row">
+
             <div class="information-icon">
               ◷
             </div>
 
             <div class="information-content">
+
               <span class="information-label">
                 Member since
               </span>
@@ -201,10 +244,68 @@
               <strong>
                 {{ formattedCreatedAt }}
               </strong>
+
             </div>
+
           </div>
 
         </div>
+
+      </section>
+
+
+      <!-- WALLET QUICK ACCESS -->
+      <section class="settings-section">
+
+        <div class="section-header">
+
+          <div>
+
+            <h2>
+              Your Wallets
+            </h2>
+
+            <p>
+              Manage the accounts and wallets connected to your MoneyFlow account.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="settings-card">
+
+          <button
+            type="button"
+            class="setting-row action-row wallet-action"
+            @click="goToWallets"
+          >
+
+            <div class="setting-icon wallet-setting-icon">
+              💳
+            </div>
+
+            <div class="setting-content">
+
+              <strong>
+                Manage Wallets
+              </strong>
+
+              <span>
+                View your wallets, balances, and add or edit accounts.
+              </span>
+
+            </div>
+
+            <span class="setting-arrow">
+              →
+            </span>
+
+          </button>
+
+        </div>
+
       </section>
 
 
@@ -212,7 +313,9 @@
       <section class="settings-section">
 
         <div class="section-header">
+
           <div>
+
             <h2>
               Account Preferences
             </h2>
@@ -220,17 +323,23 @@
             <p>
               Simple settings that make MoneyFlow feel like yours.
             </p>
+
           </div>
+
         </div>
+
 
         <div class="settings-card">
 
+          <!-- NOTIFICATIONS -->
           <div class="setting-row">
+
             <div class="setting-icon">
               🔔
             </div>
 
             <div class="setting-content">
+
               <strong>
                 Notifications
               </strong>
@@ -238,6 +347,7 @@
               <span>
                 Keep reminders and important account updates enabled.
               </span>
+
             </div>
 
             <button
@@ -249,20 +359,26 @@
             >
               <span></span>
             </button>
+
           </div>
+
 
           <div class="row-divider"></div>
 
+
+          <!-- CHANGE PASSWORD -->
           <button
             type="button"
             class="setting-row action-row"
             @click="changePassword"
           >
+
             <div class="setting-icon">
               🔒
             </div>
 
             <div class="setting-content">
+
               <strong>
                 Change password
               </strong>
@@ -270,14 +386,17 @@
               <span>
                 Update your account password.
               </span>
+
             </div>
 
             <span class="setting-arrow">
               →
             </span>
+
           </button>
 
         </div>
+
       </section>
 
 
@@ -291,6 +410,7 @@
           </div>
 
           <div class="logout-content">
+
             <strong>
               Sign out
             </strong>
@@ -298,6 +418,7 @@
             <span>
               Sign out of your MoneyFlow account on this device.
             </span>
+
           </div>
 
           <button
@@ -309,9 +430,11 @@
           </button>
 
         </div>
+
       </section>
 
     </div>
+
   </div>
 </template>
 
@@ -331,112 +454,191 @@ import api from '../utils/api.js'
 const router = useRouter()
 
 
+/* ================================
+   PROFILE STATE
+================================ */
+
 const user = ref({})
 
 const loading = ref(true)
 
 const errorMessage = ref('')
 
+
+/* ================================
+   NOTIFICATIONS
+================================ */
+
 const notifications = ref(
-  localStorage.getItem('moneyflow_notifications') !== 'false'
+  localStorage.getItem(
+    'moneyflow_notifications'
+  ) !== 'false'
 )
 
 
+/* ================================
+   LOAD PROFILE
+================================ */
+
 const loadProfile = async () => {
+
   loading.value = true
+
   errorMessage.value = ''
 
+
   try {
-    const response = await api.get('/profile')
+
+    const response =
+      await api.get('/profile')
+
 
     user.value =
       response.data?.data || {}
+
 
     localStorage.setItem(
       'user',
       JSON.stringify(user.value)
     )
 
+
   } catch (error) {
+
     console.error(
       'Profile error:',
       error
     )
 
-    if (error.response?.status === 401) {
+
+    if (
+      error.response?.status === 401
+    ) {
+
       clearAuth()
+
       router.push('/login')
+
       return
     }
 
+
     if (error.response) {
+
       errorMessage.value =
         error.response.data?.message ||
         'Unable to load your profile.'
-    } else if (error.request) {
+
+    }
+
+    else if (error.request) {
+
       errorMessage.value =
         'Cannot connect to the Laravel server. Make sure your backend is running.'
-    } else {
+
+    }
+
+    else {
+
       errorMessage.value =
         error.message ||
         'Something went wrong while loading your profile.'
+
     }
 
   } finally {
+
     loading.value = false
+
   }
+
 }
 
 
+/* ================================
+   FIRST NAME
+================================ */
+
 const firstName = computed(() => {
+
   const name =
-    String(user.value?.name || '')
-      .trim()
+    String(
+      user.value?.name || ''
+    ).trim()
+
 
   return name
     ? name.split(/\s+/)[0]
     : ''
+
 })
 
 
+/* ================================
+   USER INITIALS
+================================ */
+
 const userInitials = computed(() => {
+
   const name =
-    String(user.value?.name || 'User')
-      .trim()
+    String(
+      user.value?.name || 'User'
+    ).trim()
+
 
   if (!name) {
     return 'U'
   }
+
 
   const parts =
     name
       .split(/\s+/)
       .filter(Boolean)
 
+
   if (parts.length === 1) {
+
     return parts[0]
       .substring(0, 2)
       .toUpperCase()
+
   }
+
 
   return (
     parts[0][0] +
     parts[parts.length - 1][0]
   ).toUpperCase()
+
 })
 
 
+/* ================================
+   FORMATTED CREATED DATE
+================================ */
+
 const formattedCreatedAt = computed(() => {
+
   if (!user.value?.created_at) {
     return '—'
   }
 
-  const date =
-    new Date(user.value.created_at)
 
-  if (Number.isNaN(date.getTime())) {
+  const date =
+    new Date(
+      user.value.created_at
+    )
+
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return '—'
   }
+
 
   return date.toLocaleDateString(
     'en-US',
@@ -446,20 +648,35 @@ const formattedCreatedAt = computed(() => {
       day: 'numeric'
     }
   )
+
 })
 
 
+/* ================================
+   SHORT CREATED DATE
+================================ */
+
 const shortCreatedAt = computed(() => {
+
   if (!user.value?.created_at) {
     return ''
   }
 
-  const date =
-    new Date(user.value.created_at)
 
-  if (Number.isNaN(date.getTime())) {
+  const date =
+    new Date(
+      user.value.created_at
+    )
+
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return ''
   }
+
 
   return date.toLocaleDateString(
     'en-US',
@@ -468,63 +685,122 @@ const shortCreatedAt = computed(() => {
       month: 'short'
     }
   )
+
 })
 
 
+/* ================================
+   GO TO WALLETS
+================================ */
+
+const goToWallets = () => {
+
+  router.push('/wallets')
+
+}
+
+
+/* ================================
+   NOTIFICATIONS
+================================ */
+
 const toggleNotifications = () => {
+
   notifications.value =
     !notifications.value
 
+
   localStorage.setItem(
     'moneyflow_notifications',
-    String(notifications.value)
+    String(
+      notifications.value
+    )
   )
+
 }
 
 
+/* ================================
+   CHANGE PASSWORD
+================================ */
+
 const changePassword = () => {
+
   window.alert(
     'Password change is not connected yet.'
   )
+
 }
 
+
+/* ================================
+   CLEAR AUTH
+================================ */
 
 const clearAuth = () => {
+
   localStorage.removeItem('token')
+
   localStorage.removeItem('auth_token')
+
   localStorage.removeItem('access_token')
+
   localStorage.removeItem('is_logged_in')
+
   localStorage.removeItem('user')
+
   localStorage.removeItem('remember')
+
 }
 
 
+/* ================================
+   LOGOUT
+================================ */
+
 const logout = async () => {
+
   const confirmed =
     window.confirm(
       'Are you sure you want to log out?'
     )
 
+
   if (!confirmed) {
     return
   }
 
+
   try {
+
     await api.post('/logout')
+
   } catch (error) {
+
     console.error(
       'Logout error:',
       error
     )
+
   } finally {
+
     clearAuth()
+
     router.push('/login')
+
   }
+
 }
 
 
+/* ================================
+   INITIAL LOAD
+================================ */
+
 onMounted(() => {
+
   loadProfile()
+
 })
 </script>
 
@@ -533,6 +809,11 @@ onMounted(() => {
 * {
   box-sizing: border-box;
 }
+
+
+/* ================================
+   PAGE
+================================ */
 
 .profile-page {
   min-height: 100%;
@@ -545,6 +826,11 @@ onMounted(() => {
     "Segoe UI",
     sans-serif;
 }
+
+
+/* ================================
+   HEADER
+================================ */
 
 .page-header {
   display: flex;
@@ -576,6 +862,11 @@ onMounted(() => {
   font-size: 13px;
 }
 
+
+/* ================================
+   LOADING
+================================ */
+
 .loading-card {
   min-height: 220px;
   display: flex;
@@ -604,6 +895,11 @@ onMounted(() => {
     transform: rotate(360deg);
   }
 }
+
+
+/* ================================
+   ERROR
+================================ */
 
 .error-card {
   display: flex;
@@ -654,10 +950,20 @@ onMounted(() => {
   cursor: pointer;
 }
 
+
+/* ================================
+   PROFILE
+================================ */
+
 .profile-content {
   width: 100%;
   max-width: 1050px;
 }
+
+
+/* ================================
+   PROFILE HERO
+================================ */
 
 .profile-card {
   display: flex;
@@ -668,7 +974,8 @@ onMounted(() => {
   border: 1px solid #e8eaf0;
   border-radius: 14px;
   background: white;
-  box-shadow: 0 4px 15px rgba(30, 25, 80, .025);
+  box-shadow:
+    0 4px 15px rgba(30, 25, 80, .025);
 }
 
 .profile-avatar {
@@ -679,11 +986,17 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   border-radius: 20px;
-  background: linear-gradient(145deg, #6655e9, #8068ef);
+  background:
+    linear-gradient(
+      145deg,
+      #6655e9,
+      #8068ef
+    );
   color: white;
   font-size: 23px;
   font-weight: 700;
-  box-shadow: 0 8px 20px rgba(102, 85, 233, .20);
+  box-shadow:
+    0 8px 20px rgba(102, 85, 233, .20);
 }
 
 .profile-main {
@@ -736,6 +1049,11 @@ onMounted(() => {
   color: #7b8393;
 }
 
+
+/* ================================
+   PERSONAL NOTE
+================================ */
+
 .personal-note {
   display: flex;
   align-items: flex-start;
@@ -773,6 +1091,11 @@ onMounted(() => {
   line-height: 1.6;
 }
 
+
+/* ================================
+   SETTINGS SECTIONS
+================================ */
+
 .settings-section {
   margin-bottom: 32px;
 }
@@ -793,6 +1116,11 @@ onMounted(() => {
   color: #969cab;
   font-size: 11px;
 }
+
+
+/* ================================
+   INFORMATION
+================================ */
 
 .information-card,
 .settings-card {
@@ -852,6 +1180,11 @@ onMounted(() => {
   background: #eef0f4;
 }
 
+
+/* ================================
+   SETTINGS
+================================ */
+
 .setting-row {
   width: 100%;
   min-height: 75px;
@@ -900,6 +1233,29 @@ onMounted(() => {
   color: #6655e9;
 }
 
+
+/* ================================
+   WALLET BUTTON
+================================ */
+
+.wallet-action {
+  cursor: pointer;
+}
+
+.wallet-setting-icon {
+  background: #f0edff;
+  color: #6655e9;
+}
+
+.wallet-action:hover .wallet-setting-icon {
+  background: #e9e5ff;
+}
+
+
+/* ================================
+   TOGGLE
+================================ */
+
 .toggle {
   width: 42px;
   height: 23px;
@@ -921,7 +1277,8 @@ onMounted(() => {
   height: 17px;
   border-radius: 50%;
   background: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, .15);
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, .15);
   transition: transform .2s ease;
 }
 
@@ -932,6 +1289,11 @@ onMounted(() => {
 .toggle.active span {
   transform: translateX(19px);
 }
+
+
+/* ================================
+   LOGOUT
+================================ */
 
 .logout-section {
   margin-bottom: 20px;
@@ -996,19 +1358,28 @@ onMounted(() => {
   border-color: #dfb3ba;
 }
 
+
+/* ================================
+   MOBILE
+================================ */
+
 @media (max-width: 700px) {
+
   .profile-page {
     padding: 22px 16px 35px;
   }
+
 
   .page-header h1 {
     font-size: 25px;
   }
 
+
   .profile-card {
     align-items: flex-start;
     padding: 20px;
   }
+
 
   .profile-avatar {
     width: 58px;
@@ -1017,18 +1388,22 @@ onMounted(() => {
     font-size: 18px;
   }
 
+
   .profile-main h2 {
     font-size: 17px;
   }
+
 
   .information-row,
   .setting-row {
     padding: 13px 15px;
   }
 
+
   .row-divider {
     width: calc(100% - 30px);
   }
+
 
   .logout-card {
     align-items: flex-start;
@@ -1036,9 +1411,11 @@ onMounted(() => {
     padding: 17px 15px;
   }
 
+
   .logout-button {
     width: calc(100% - 53px);
     margin-left: 53px;
   }
+
 }
 </style>
