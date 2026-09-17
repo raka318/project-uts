@@ -150,20 +150,9 @@
       <div class="sidebar-bottom">
 
         <!-- HELP -->
-        <div class="help-card">
+        <div class="">
 
-          <div class="help-icon">
-            ?
-          </div>
-
-          <div class="help-text">
-            <strong>Need help?</strong>
-            <span>We're here for you.</span>
-          </div>
-
-          <span class="help-arrow">
-            →
-          </span>
+          
 
         </div>
 
@@ -286,32 +275,6 @@
 
           <span>
             Profile
-          </span>
-
-        </RouterLink>
-
-
-        <!-- SETTINGS -->
-        <RouterLink
-          to="/settings"
-          class="dropdown-item"
-          @click="closeProfileMenu"
-        >
-
-          <svg viewBox="0 0 24 24">
-            <circle
-              cx="12"
-              cy="12"
-              r="3"
-            ></circle>
-
-            <path
-              d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20h-2.5v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.1a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.4 8.6l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V5h2.5v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1V14h-.1a1.7 1.7 0 0 0-1.6 1z"
-            ></path>
-          </svg>
-
-          <span>
-            Settings
           </span>
 
         </RouterLink>
@@ -555,30 +518,7 @@
               </RouterLink>
 
 
-              <!-- SETTINGS -->
-              <RouterLink
-                to="/settings"
-                class="dropdown-item"
-                @click="closeProfileMenu"
-              >
 
-                <svg viewBox="0 0 24 24">
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="3"
-                  ></circle>
-
-                  <path
-                    d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20h-2.5v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.1a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.4 8.6l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1V14h-.1a1.7 1.7 0 0 0-1.6 1z"
-                  ></path>
-                </svg>
-
-                <span>
-                  Settings
-                </span>
-
-              </RouterLink>
 
 
               <div class="dropdown-divider"></div>

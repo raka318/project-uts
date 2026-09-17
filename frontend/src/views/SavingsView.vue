@@ -353,9 +353,11 @@ import { computed, onMounted, ref } from 'vue'
    API
 ========================================================= */
 
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  'http://127.0.0.1:8000/api'
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://127.0.0.1:8000'
+
+const API_URL = `${API_BASE}/api`
 
 
 /* =========================================================
@@ -396,12 +398,17 @@ const getToken = () => {
 }
 
 
-const getHeaders = () => {
+const getHeaders = (includeJson = false) => {
   const token = getToken()
 
   return {
     Accept: 'application/json',
-    'Content-Type': 'application/json',
+
+    ...(includeJson
+      ? {
+          'Content-Type': 'application/json'
+        }
+      : {}),
 
     ...(token
       ? {
@@ -548,7 +555,7 @@ const fetchGoals = async () => {
       `${API_URL}/tujuan-tabungan`,
       {
         method: 'GET',
-        headers: getHeaders()
+        headers: getHeaders(true)
       }
     )
 
@@ -571,19 +578,12 @@ const fetchGoals = async () => {
       ? result.data.map(mapGoal)
       : []
 
-  } catch (err) {
-    console.error(
-      'Fetch savings goals error:',
-      err
-    )
-
-    error.value =
-      err.message ||
-      'Failed to load savings goals.'
-
-  } finally {
-    loading.value = false
-  }
+    } catch (err) {
+      console.error('Fetch savings goals error:', err)
+      error.value = err.message || 'Failed to load savings goals.'
+    } finally {
+      loading.value = false
+    }
 }
 
 
@@ -743,18 +743,12 @@ const submitGoal = async () => {
       {
         method: 'POST',
 
-        headers: getHeaders(),
+        headers: getHeaders(true),
 
         body: JSON.stringify({
           nama_tujuan: name,
-
-          /*
-           * Important:
-           * These are numbers, NOT "1.000" strings.
-           */
           target_jumlah: target,
           jumlah_terkumpul: saved,
-
           deadline:
             goalForm.value.deadline || null
         })
@@ -816,16 +810,8 @@ const submitGoal = async () => {
     resetGoalForm()
 
   } catch (err) {
-
-    console.error(
-      'Create savings goal error:',
-      err
-    )
-
-    error.value =
-      err.message ||
-      'Failed to create savings goal.'
-
+    console.error('Create savings goal error:', err)
+    error.value = err.message || 'Failed to create savings goal.'
   } finally {
     saving.value = false
   }
