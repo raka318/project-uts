@@ -213,37 +213,11 @@
 
             <!-- DIVIDER -->
             <div class="divider">
-
-              <span></span>
-
-              <p>or continue with</p>
-
-              <span></span>
-
             </div>
 
 
             <!-- SOCIAL -->
             <div class="social-buttons">
-
-              <button
-                type="button"
-                class="social-button"
-                @click="socialLogin('Google')"
-              >
-                <span class="google-icon">G</span>
-                Google
-              </button>
-
-              <button
-                type="button"
-                class="social-button"
-                @click="socialLogin('Apple')"
-              >
-                <span class="apple-icon">●</span>
-                Apple
-              </button>
-
             </div>
 
 
