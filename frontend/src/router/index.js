@@ -9,12 +9,14 @@ import LoginView from '../views/LoginView.vue'
 import TransactionsView from '../views/TransactionsView.vue'
 import BudgetsView from '../views/BudgetsView.vue'
 import SavingsView from '../views/SavingsView.vue'
-import WalletsView from '../views/WalletsView.vue'
+
 import CategoriesView from '../views/CategoriesView.vue'
+import LaporanView from '../views/LaporanView.vue'
+import HelpView from '../views/HelpView.vue'
 
 // New views
 import ProfileView from '../views/ProfileView.vue'
-
+import WalletsView from '../views/WalletsView.vue'
 const router = createRouter({
   history: createWebHistory(),
 
@@ -110,7 +112,20 @@ const router = createRouter({
           path: 'categories',
           name: 'categories',
           component: CategoriesView
+        },
+
+        {
+          path: 'laporan',
+          name: 'laporan',
+          component: LaporanView
+        },
+
+        {
+          path: 'help',
+          name: 'help',
+          component: HelpView
         }
+
 
       ]
     }
