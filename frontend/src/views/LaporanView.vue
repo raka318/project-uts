@@ -2,78 +2,157 @@
   <div class="report-page">
     <div class="report-content">
 
-      <!-- HEADER -->
+      <!-- =========================================
+           HEADER
+      ========================================== -->
+
       <div class="page-header">
         <div>
           <span class="eyebrow">FINANCIAL REPORT</span>
 
-          <h1>Daily Report</h1>
+          <h1>{{ reportTitle }}</h1>
 
           <p>
-            Review your financial activity for a specific day.
+            Review your financial activity for the selected period.
           </p>
         </div>
 
-        <button class="print-button" @click="printReport">
+        <button
+          class="print-button"
+          @click="printReport"
+        >
           <span>🖨</span>
           Print Report
         </button>
       </div>
 
-      <!-- DATE NAVIGATION -->
+      <!-- =========================================
+           REPORT PERIOD SELECTOR
+      ========================================== -->
+
+      <section class="period-panel">
+
+        <div class="period-tabs">
+          <button
+            v-for="period in periods"
+            :key="period.value"
+            class="period-tab"
+            :class="{ active: reportPeriod === period.value }"
+            @click="changePeriod(period.value)"
+          >
+            {{ period.label }}
+          </button>
+        </div>
+
+      </section>
+
+      <!-- =========================================
+           DATE NAVIGATION
+      ========================================== -->
+
       <section class="date-panel">
+
         <button
           class="date-nav-button"
-          @click="previousDay"
-          aria-label="Previous day"
+          @click="previousPeriod"
+          aria-label="Previous period"
         >
           ‹
         </button>
 
         <div class="date-center">
-          <span class="date-label">SELECTED DATE</span>
+
+          <span class="date-label">
+            {{ periodLabel }}
+          </span>
 
           <div class="selected-date">
-            {{ formattedSelectedDate }}
+            {{ formattedPeriod }}
           </div>
 
+          <!-- DAILY -->
           <input
+            v-if="reportPeriod === 'daily'"
             v-model="selectedDate"
             type="date"
             class="date-input"
           />
+
+          <!-- WEEKLY -->
+          <input
+            v-else-if="reportPeriod === 'weekly'"
+            v-model="selectedDate"
+            type="date"
+            class="date-input"
+          />
+
+          <!-- MONTHLY -->
+          <input
+            v-else-if="reportPeriod === 'monthly'"
+            v-model="selectedMonth"
+            type="month"
+            class="date-input"
+          />
+
+          <!-- YEARLY -->
+          <input
+            v-else
+            v-model="selectedYear"
+            type="number"
+            min="2000"
+            max="2100"
+            class="year-input"
+          />
+
         </div>
 
         <button
           class="date-nav-button"
-          @click="nextDay"
-          aria-label="Next day"
+          @click="nextPeriod"
+          aria-label="Next period"
         >
           ›
         </button>
+
       </section>
 
-      <!-- LOADING -->
-      <div v-if="loading" class="loading-state">
+      <!-- =========================================
+           LOADING
+      ========================================== -->
+
+      <div
+        v-if="loading"
+        class="loading-state"
+      >
 
         <!-- Skeleton Stats -->
+
         <div class="skeleton-stats">
+
           <div
             v-for="n in 3"
             :key="n"
             class="skeleton-card"
           >
             <div class="skeleton skeleton-icon"></div>
+
             <div class="skeleton skeleton-small"></div>
+
             <div class="skeleton skeleton-value"></div>
+
+            <div class="skeleton skeleton-description"></div>
           </div>
+
         </div>
 
         <!-- Skeleton Transaction Panel -->
+
         <div class="skeleton-panel">
+
           <div class="skeleton skeleton-title"></div>
 
           <div class="skeleton-table">
+
             <div
               v-for="n in 6"
               :key="n"
@@ -85,12 +164,17 @@
               <div class="skeleton"></div>
               <div class="skeleton"></div>
             </div>
+
           </div>
+
         </div>
 
-        <!-- Skeleton Bottom Panels -->
+        <!-- Skeleton Bottom -->
+
         <div class="skeleton-bottom">
+
           <div class="skeleton-panel">
+
             <div class="skeleton skeleton-title"></div>
 
             <div
@@ -98,9 +182,11 @@
               :key="n"
               class="skeleton skeleton-line"
             ></div>
+
           </div>
 
           <div class="skeleton-panel">
+
             <div class="skeleton skeleton-title"></div>
 
             <div
@@ -108,19 +194,31 @@
               :key="n"
               class="skeleton skeleton-line"
             ></div>
+
           </div>
+
         </div>
+
       </div>
 
-      <!-- REPORT CONTENT -->
+      <!-- =========================================
+           REPORT CONTENT
+      ========================================== -->
+
       <div v-else>
 
-        <!-- DAILY FINANCIAL STATEMENT -->
+        <!-- =========================================
+             FINANCIAL STATEMENT
+        ========================================== -->
+
         <section class="statement-grid">
 
           <!-- INCOME -->
+
           <div class="stat-card">
+
             <div class="stat-top">
+
               <div class="stat-icon income-icon">
                 ↗
               </div>
@@ -128,21 +226,33 @@
               <span class="stat-label">
                 INCOME
               </span>
+
             </div>
 
             <div class="stat-value income-text">
-              {{ formatCurrency(dailyIncome) }}
+              {{ formatCurrency(periodIncome) }}
             </div>
 
             <div class="stat-description">
-              {{ incomeTransactions.length }} income
-              transaction{{ incomeTransactions.length === 1 ? '' : 's' }}
+
+              {{ incomeTransactions.length }}
+
+              income transaction{{
+                incomeTransactions.length === 1
+                  ? ''
+                  : 's'
+              }}
+
             </div>
+
           </div>
 
           <!-- EXPENSE -->
+
           <div class="stat-card">
+
             <div class="stat-top">
+
               <div class="stat-icon expense-icon">
                 ↘
               </div>
@@ -150,21 +260,33 @@
               <span class="stat-label">
                 EXPENSES
               </span>
+
             </div>
 
             <div class="stat-value expense-text">
-              {{ formatCurrency(dailyExpenses) }}
+              {{ formatCurrency(periodExpenses) }}
             </div>
 
             <div class="stat-description">
-              {{ expenseTransactions.length }} expense
-              transaction{{ expenseTransactions.length === 1 ? '' : 's' }}
+
+              {{ expenseTransactions.length }}
+
+              expense transaction{{
+                expenseTransactions.length === 1
+                  ? ''
+                  : 's'
+              }}
+
             </div>
+
           </div>
 
-          <!-- NET RESULT -->
+          <!-- NET -->
+
           <div class="stat-card">
+
             <div class="stat-top">
+
               <div class="stat-icon net-icon">
                 =
               </div>
@@ -172,47 +294,73 @@
               <span class="stat-label">
                 NET RESULT
               </span>
+
             </div>
 
             <div
               class="stat-value"
-              :class="dailyNet >= 0 ? 'income-text' : 'expense-text'"
+              :class="
+                periodNet >= 0
+                  ? 'income-text'
+                  : 'expense-text'
+              "
             >
-              {{ formatCurrency(dailyNet) }}
+              {{ formatCurrency(periodNet) }}
             </div>
 
             <div class="stat-description">
               Income minus expenses
             </div>
+
           </div>
 
         </section>
 
-        <!-- TRANSACTION DETAILS -->
+        <!-- =========================================
+             TRANSACTION DETAILS
+        ========================================== -->
+
         <section class="panel transaction-panel">
 
           <div class="panel-header">
+
             <div>
-              <h3>Transaction Details</h3>
+
+              <h3>
+                Transaction Details
+              </h3>
 
               <p>
-                {{ dailyTransactions.length }}
-                transaction{{ dailyTransactions.length === 1 ? '' : 's' }}
-                recorded on this day.
+                {{ periodTransactions.length }}
+
+                transaction{{
+                  periodTransactions.length === 1
+                    ? ''
+                    : 's'
+                }}
+
+                recorded for this {{ reportPeriodLabel.toLowerCase() }}.
               </p>
+
             </div>
 
             <span class="panel-badge">
-              {{ formattedSelectedDate }}
+              {{ formattedPeriod }}
             </span>
+
           </div>
 
+          <!-- TABLE -->
+
           <div
-            v-if="dailyTransactions.length"
+            v-if="periodTransactions.length"
             class="table-wrapper"
           >
+
             <table class="transaction-table">
+
               <thead>
+
                 <tr>
                   <th>TRANSACTION</th>
                   <th>CATEGORY</th>
@@ -220,15 +368,20 @@
                   <th>TYPE</th>
                   <th>AMOUNT</th>
                 </tr>
+
               </thead>
 
               <tbody>
+
                 <tr
-                  v-for="transaction in dailyTransactions"
+                  v-for="transaction in periodTransactions"
                   :key="transaction.id_transaksi"
                 >
+
                   <!-- TRANSACTION -->
+
                   <td>
+
                     <div class="transaction-name">
                       {{ transaction.judul || 'Untitled transaction' }}
                     </div>
@@ -241,11 +394,13 @@
                     </div>
 
                     <div class="transaction-date">
-                      {{ transaction.tanggal }}
+                      {{ formatTransactionDate(transaction.tanggal) }}
                     </div>
+
                   </td>
 
                   <!-- CATEGORY -->
+
                   <td>
                     <span class="category-text">
                       {{ getCategoryName(transaction) }}
@@ -253,6 +408,7 @@
                   </td>
 
                   <!-- WALLET -->
+
                   <td>
                     <span class="wallet-text">
                       {{ getWalletName(transaction) }}
@@ -260,7 +416,9 @@
                   </td>
 
                   <!-- TYPE -->
+
                   <td>
+
                     <span
                       class="type-badge"
                       :class="
@@ -269,16 +427,21 @@
                           : 'type-expense'
                       "
                     >
+
                       {{
                         transaction.jenis === 'pemasukan'
                           ? 'Income'
                           : 'Expense'
                       }}
+
                     </span>
+
                   </td>
 
                   <!-- AMOUNT -->
+
                   <td class="amount-cell">
+
                     <span
                       :class="
                         transaction.jenis === 'pemasukan'
@@ -286,63 +449,92 @@
                           : 'expense-text'
                       "
                     >
+
                       {{
                         transaction.jenis === 'pemasukan'
                           ? '+ '
                           : '- '
-                      }}{{ formatCurrency(transaction.jumlah) }}
+                      }}
+
+                      {{ formatCurrency(transaction.jumlah) }}
+
                     </span>
+
                   </td>
+
                 </tr>
+
               </tbody>
+
             </table>
+
           </div>
 
-          <!-- EMPTY TRANSACTIONS -->
+          <!-- EMPTY -->
+
           <div
             v-else
             class="empty-state"
           >
+
             <div class="empty-icon">
               $
             </div>
 
-            <h4>No transactions</h4>
+            <h4>
+              No transactions
+            </h4>
 
             <p>
               There are no financial transactions recorded for
-              {{ formattedSelectedDate }}.
+              {{ formattedPeriod }}.
             </p>
+
           </div>
 
         </section>
 
-        <!-- BOTTOM GRID -->
+        <!-- =========================================
+             BOTTOM GRID
+        ========================================== -->
+
         <div class="bottom-grid">
 
-          <!-- EXPENSE BREAKDOWN -->
+          <!-- =======================================
+               EXPENSE BREAKDOWN
+          ======================================== -->
+
           <section class="panel">
 
             <div class="panel-header">
+
               <div>
-                <h3>Expense Breakdown</h3>
+
+                <h3>
+                  Expense Breakdown
+                </h3>
 
                 <p>
-                  Spending by category for this day.
+                  Spending by category for this period.
                 </p>
+
               </div>
+
             </div>
 
             <div
               v-if="expenseBreakdown.length"
               class="breakdown-list"
             >
+
               <div
                 v-for="item in expenseBreakdown"
                 :key="item.name"
                 class="breakdown-item"
               >
+
                 <div class="breakdown-header">
+
                   <span class="breakdown-name">
                     {{ item.name }}
                   </span>
@@ -350,126 +542,193 @@
                   <span class="breakdown-amount">
                     {{ formatCurrency(item.amount) }}
                   </span>
+
                 </div>
 
                 <div class="progress-track">
+
                   <div
                     class="progress-fill"
-                    :style="{ width: `${item.percentage}%` }"
+                    :style="{
+                      width: `${item.percentage}%`
+                    }"
                   ></div>
+
                 </div>
 
                 <div class="breakdown-footer">
+
                   <span>
+
                     {{ item.count }}
-                    transaction{{ item.count === 1 ? '' : 's' }}
+
+                    transaction{{
+                      item.count === 1
+                        ? ''
+                        : 's'
+                    }}
+
                   </span>
 
                   <span>
                     {{ item.percentage }}%
                   </span>
+
                 </div>
+
               </div>
+
             </div>
 
             <div
               v-else
               class="small-empty"
             >
-              No expenses recorded for this day.
+              No expenses recorded for this period.
             </div>
 
           </section>
 
-          <!-- DAILY SUMMARY -->
+          <!-- =======================================
+               PERIOD SUMMARY
+          ======================================== -->
+
           <section class="panel">
 
             <div class="panel-header">
+
               <div>
-                <h3>Daily Summary</h3>
+
+                <h3>
+                  {{ reportPeriodLabel }} Summary
+                </h3>
 
                 <p>
-                  Quick overview of your activity.
+                  Quick overview of your financial activity.
                 </p>
+
               </div>
+
             </div>
 
             <div class="summary-list">
 
               <!-- TOTAL -->
+
               <div class="summary-row">
+
                 <div class="summary-icon purple">
                   #
                 </div>
 
                 <div class="summary-info">
-                  <span>Total Transactions</span>
+
+                  <span>
+                    Total Transactions
+                  </span>
+
                   <strong>
-                    {{ dailyTransactions.length }}
+                    {{ periodTransactions.length }}
                   </strong>
+
                 </div>
+
               </div>
 
               <!-- INCOME -->
+
               <div class="summary-row">
+
                 <div class="summary-icon green">
                   ↗
                 </div>
 
                 <div class="summary-info">
-                  <span>Income Transactions</span>
+
+                  <span>
+                    Income Transactions
+                  </span>
+
                   <strong>
                     {{ incomeTransactions.length }}
                   </strong>
+
                 </div>
+
               </div>
 
               <!-- EXPENSE -->
+
               <div class="summary-row">
+
                 <div class="summary-icon red">
                   ↘
                 </div>
 
                 <div class="summary-info">
-                  <span>Expense Transactions</span>
+
+                  <span>
+                    Expense Transactions
+                  </span>
+
                   <strong>
                     {{ expenseTransactions.length }}
                   </strong>
+
                 </div>
+
               </div>
 
               <!-- LARGEST EXPENSE -->
+
               <div class="summary-row">
+
                 <div class="summary-icon orange">
                   $
                 </div>
 
                 <div class="summary-info">
-                  <span>Largest Expense</span>
+
+                  <span>
+                    Largest Expense
+                  </span>
 
                   <strong>
+
                     {{
                       largestExpense
-                        ? formatCurrency(largestExpense.jumlah)
+                        ? formatCurrency(
+                            largestExpense.jumlah
+                          )
                         : 'Rp 0'
                     }}
+
                   </strong>
+
                 </div>
+
               </div>
 
               <!-- TOP CATEGORY -->
+
               <div class="summary-row">
+
                 <div class="summary-icon purple">
                   ★
                 </div>
 
                 <div class="summary-info">
-                  <span>Top Expense Category</span>
+
+                  <span>
+                    Top Expense Category
+                  </span>
 
                   <strong>
                     {{ topExpenseCategory || 'None' }}
                   </strong>
+
                 </div>
+
               </div>
 
             </div>
@@ -478,19 +737,32 @@
 
         </div>
 
-        <!-- REPORT FOOTER -->
+        <!-- =========================================
+             REPORT FOOTER
+        ========================================== -->
+
         <div class="report-footer">
+
           <div>
-            <strong>MoneyFlow</strong>
-            <span>Daily Financial Report</span>
+
+            <strong>
+              MoneyFlow
+            </strong>
+
+            <span>
+              {{ reportPeriodLabel }} Financial Report
+            </span>
+
           </div>
 
           <span>
-            Generated for {{ formattedSelectedDate }}
+            Generated for {{ formattedPeriod }}
           </span>
+
         </div>
 
       </div>
+
     </div>
   </div>
 </template>
@@ -507,74 +779,487 @@ import api from '../utils/api'
 
 const router = useRouter()
 
-/* =========================
+/* =========================================
    STATE
-========================= */
+========================================= */
 
 const loading = ref(true)
 
 const transactions = ref([])
 
+/*
+|--------------------------------------------------------------------------
+| Report period
+|--------------------------------------------------------------------------
+|
+| daily   = one day
+| weekly  = one week
+| monthly = one month
+| yearly  = one year
+|
+*/
+
+const reportPeriod = ref('daily')
+
 const selectedDate = ref(
   formatDateForInput(new Date())
 )
 
-/* =========================
+const selectedMonth = ref(
+  formatMonthForInput(new Date())
+)
+
+const selectedYear = ref(
+  String(new Date().getFullYear())
+)
+
+/* =========================================
+   PERIOD OPTIONS
+========================================= */
+
+const periods = [
+  {
+    value: 'daily',
+    label: 'Daily'
+  },
+  {
+    value: 'weekly',
+    label: 'Weekly'
+  },
+  {
+    value: 'monthly',
+    label: 'Monthly'
+  },
+  {
+    value: 'yearly',
+    label: 'Yearly'
+  }
+]
+
+/* =========================================
    DATE HELPERS
-========================= */
+========================================= */
 
 function formatDateForInput(date) {
   const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, '0')
+
+  const day = String(
+    date.getDate()
+  ).padStart(2, '0')
 
   return `${year}-${month}-${day}`
 }
 
-function parseLocalDate(dateString) {
-  const [year, month, day] = dateString
-    .split('-')
-    .map(Number)
+function formatMonthForInput(date) {
+  const year = date.getFullYear()
 
-  return new Date(year, month - 1, day)
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, '0')
+
+  return `${year}-${month}`
 }
 
-const formattedSelectedDate = computed(() => {
-  const date = parseLocalDate(selectedDate.value)
+function parseLocalDate(dateString) {
+  const [year, month, day] =
+    dateString.split('-').map(Number)
 
-  return date.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
+  return new Date(
+    year,
+    month - 1,
+    day
+  )
+}
+
+/* =========================================
+   REPORT LABELS
+========================================= */
+
+const reportPeriodLabel = computed(() => {
+  if (reportPeriod.value === 'daily') {
+    return 'Daily'
+  }
+
+  if (reportPeriod.value === 'weekly') {
+    return 'Weekly'
+  }
+
+  if (reportPeriod.value === 'monthly') {
+    return 'Monthly'
+  }
+
+  return 'Yearly'
 })
 
-function previousDay() {
-  const date = parseLocalDate(selectedDate.value)
+const reportTitle = computed(() => {
+  return `${reportPeriodLabel.value} Report`
+})
 
-  date.setDate(date.getDate() - 1)
+const periodLabel = computed(() => {
+  if (reportPeriod.value === 'daily') {
+    return 'SELECTED DATE'
+  }
 
-  selectedDate.value = formatDateForInput(date)
+  if (reportPeriod.value === 'weekly') {
+    return 'SELECTED WEEK'
+  }
+
+  if (reportPeriod.value === 'monthly') {
+    return 'SELECTED MONTH'
+  }
+
+  return 'SELECTED YEAR'
+})
+
+/* =========================================
+   PERIOD RANGE
+========================================= */
+
+const periodStart = computed(() => {
+
+  /* DAILY */
+
+  if (reportPeriod.value === 'daily') {
+    return parseLocalDate(
+      selectedDate.value
+    )
+  }
+
+  /* WEEKLY */
+
+  if (reportPeriod.value === 'weekly') {
+
+    const date = parseLocalDate(
+      selectedDate.value
+    )
+
+    /*
+     * Monday = first day of week
+     */
+
+    const day = date.getDay()
+
+    const difference =
+      day === 0
+        ? -6
+        : 1 - day
+
+    date.setDate(
+      date.getDate() + difference
+    )
+
+    return date
+  }
+
+  /* MONTHLY */
+
+  if (reportPeriod.value === 'monthly') {
+
+    const [year, month] =
+      selectedMonth.value
+        .split('-')
+        .map(Number)
+
+    return new Date(
+      year,
+      month - 1,
+      1
+    )
+  }
+
+  /* YEARLY */
+
+  return new Date(
+    Number(selectedYear.value),
+    0,
+    1
+  )
+})
+
+const periodEnd = computed(() => {
+
+  /* DAILY */
+
+  if (reportPeriod.value === 'daily') {
+
+    return parseLocalDate(
+      selectedDate.value
+    )
+  }
+
+  /* WEEKLY */
+
+  if (reportPeriod.value === 'weekly') {
+
+    const start =
+      new Date(periodStart.value)
+
+    start.setDate(
+      start.getDate() + 6
+    )
+
+    return start
+  }
+
+  /* MONTHLY */
+
+  if (reportPeriod.value === 'monthly') {
+
+    const start =
+      new Date(periodStart.value)
+
+    return new Date(
+      start.getFullYear(),
+      start.getMonth() + 1,
+      0
+    )
+  }
+
+  /* YEARLY */
+
+  return new Date(
+    Number(selectedYear.value),
+    11,
+    31
+  )
+})
+
+/* =========================================
+   FORMATTED PERIOD
+========================================= */
+
+const formattedPeriod = computed(() => {
+
+  const start = periodStart.value
+  const end = periodEnd.value
+
+  /* DAILY */
+
+  if (reportPeriod.value === 'daily') {
+
+    return start.toLocaleDateString(
+      'en-US',
+      {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }
+    )
+  }
+
+  /* WEEKLY */
+
+  if (reportPeriod.value === 'weekly') {
+
+    const startText =
+      start.toLocaleDateString(
+        'en-US',
+        {
+          month: 'short',
+          day: 'numeric'
+        }
+      )
+
+    const endText =
+      end.toLocaleDateString(
+        'en-US',
+        {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        }
+      )
+
+    return `${startText} – ${endText}`
+  }
+
+  /* MONTHLY */
+
+  if (reportPeriod.value === 'monthly') {
+
+    return start.toLocaleDateString(
+      'en-US',
+      {
+        month: 'long',
+        year: 'numeric'
+      }
+    )
+  }
+
+  /* YEARLY */
+
+  return String(
+    Number(selectedYear.value)
+  )
+})
+
+/* =========================================
+   CHANGE PERIOD
+========================================= */
+
+function changePeriod(period) {
+  reportPeriod.value = period
 }
 
-function nextDay() {
-  const date = parseLocalDate(selectedDate.value)
+/* =========================================
+   PREVIOUS PERIOD
+========================================= */
 
-  date.setDate(date.getDate() + 1)
+function previousPeriod() {
 
-  selectedDate.value = formatDateForInput(date)
+  /* DAILY */
+
+  if (reportPeriod.value === 'daily') {
+
+    const date =
+      parseLocalDate(
+        selectedDate.value
+      )
+
+    date.setDate(
+      date.getDate() - 1
+    )
+
+    selectedDate.value =
+      formatDateForInput(date)
+
+    return
+  }
+
+  /* WEEKLY */
+
+  if (reportPeriod.value === 'weekly') {
+
+    const date =
+      parseLocalDate(
+        selectedDate.value
+      )
+
+    date.setDate(
+      date.getDate() - 7
+    )
+
+    selectedDate.value =
+      formatDateForInput(date)
+
+    return
+  }
+
+  /* MONTHLY */
+
+  if (reportPeriod.value === 'monthly') {
+
+    const date =
+      parseLocalDate(
+        `${selectedMonth.value}-01`
+      )
+
+    date.setMonth(
+      date.getMonth() - 1
+    )
+
+    selectedMonth.value =
+      formatMonthForInput(date)
+
+    return
+  }
+
+  /* YEARLY */
+
+  selectedYear.value =
+    String(
+      Number(selectedYear.value) - 1
+    )
 }
 
-/* =========================
+/* =========================================
+   NEXT PERIOD
+========================================= */
+
+function nextPeriod() {
+
+  /* DAILY */
+
+  if (reportPeriod.value === 'daily') {
+
+    const date =
+      parseLocalDate(
+        selectedDate.value
+      )
+
+    date.setDate(
+      date.getDate() + 1
+    )
+
+    selectedDate.value =
+      formatDateForInput(date)
+
+    return
+  }
+
+  /* WEEKLY */
+
+  if (reportPeriod.value === 'weekly') {
+
+    const date =
+      parseLocalDate(
+        selectedDate.value
+      )
+
+    date.setDate(
+      date.getDate() + 7
+    )
+
+    selectedDate.value =
+      formatDateForInput(date)
+
+    return
+  }
+
+  /* MONTHLY */
+
+  if (reportPeriod.value === 'monthly') {
+
+    const date =
+      parseLocalDate(
+        `${selectedMonth.value}-01`
+      )
+
+    date.setMonth(
+      date.getMonth() + 1
+    )
+
+    selectedMonth.value =
+      formatMonthForInput(date)
+
+    return
+  }
+
+  /* YEARLY */
+
+  selectedYear.value =
+    String(
+      Number(selectedYear.value) + 1
+    )
+}
+
+/* =========================================
    FETCH TRANSACTIONS
-========================= */
+========================================= */
 
 async function fetchTransactions() {
+
   loading.value = true
 
   try {
-    const response = await api.get('/transaksi')
+
+    const response =
+      await api.get('/transaksi')
 
     transactions.value =
       response.data?.data ||
@@ -582,81 +1267,158 @@ async function fetchTransactions() {
       []
 
   } catch (error) {
+
     console.error(
       'Failed to fetch transactions:',
       error
     )
 
-    if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('remember')
+    if (
+      error.response?.status === 401
+    ) {
+
+      localStorage.removeItem(
+        'auth_token'
+      )
+
+      localStorage.removeItem(
+        'remember'
+      )
 
       router.push('/login')
     }
 
   } finally {
+
     loading.value = false
   }
 }
 
-/* =========================
-   DAILY TRANSACTIONS
-========================= */
+/* =========================================
+   PERIOD TRANSACTIONS
+========================================= */
 
-const dailyTransactions = computed(() => {
-  return transactions.value.filter(transaction => {
-    if (!transaction.tanggal) {
-      return false
-    }
+const periodTransactions = computed(() => {
 
-    return String(transaction.tanggal)
-      .slice(0, 10) === selectedDate.value
-  })
+  const start =
+    formatDateForInput(
+      periodStart.value
+    )
+
+  const end =
+    formatDateForInput(
+      periodEnd.value
+    )
+
+  return transactions.value
+    .filter(transaction => {
+
+      if (!transaction.tanggal) {
+        return false
+      }
+
+      const transactionDate =
+        String(
+          transaction.tanggal
+        ).slice(0, 10)
+
+      return (
+        transactionDate >= start &&
+        transactionDate <= end
+      )
+    })
+    .sort((a, b) => {
+
+      const dateA =
+        String(a.tanggal || '')
+
+      const dateB =
+        String(b.tanggal || '')
+
+      return dateB.localeCompare(dateA)
+    })
 })
 
-/* =========================
+/* =========================================
    INCOME / EXPENSE
-========================= */
+========================================= */
 
 const incomeTransactions = computed(() => {
-  return dailyTransactions.value.filter(
+
+  return periodTransactions.value.filter(
     transaction =>
       transaction.jenis === 'pemasukan'
   )
 })
 
 const expenseTransactions = computed(() => {
-  return dailyTransactions.value.filter(
+
+  return periodTransactions.value.filter(
     transaction =>
       transaction.jenis === 'pengeluaran'
   )
 })
 
-const dailyIncome = computed(() => {
+/* =========================================
+   TOTAL INCOME
+========================================= */
+
+const periodIncome = computed(() => {
+
   return incomeTransactions.value.reduce(
-    (total, transaction) =>
-      total + Number(transaction.jumlah || 0),
+    (total, transaction) => {
+
+      return (
+        total +
+        Number(
+          transaction.jumlah || 0
+        )
+      )
+
+    },
     0
   )
 })
 
-const dailyExpenses = computed(() => {
+/* =========================================
+   TOTAL EXPENSE
+========================================= */
+
+const periodExpenses = computed(() => {
+
   return expenseTransactions.value.reduce(
-    (total, transaction) =>
-      total + Number(transaction.jumlah || 0),
+    (total, transaction) => {
+
+      return (
+        total +
+        Number(
+          transaction.jumlah || 0
+        )
+      )
+
+    },
     0
   )
 })
 
-const dailyNet = computed(() => {
-  return dailyIncome.value - dailyExpenses.value
+/* =========================================
+   NET
+========================================= */
+
+const periodNet = computed(() => {
+
+  return (
+    periodIncome.value -
+    periodExpenses.value
+  )
 })
 
-/* =========================
+/* =========================================
    CATEGORY
-========================= */
+========================================= */
 
 function getCategoryName(transaction) {
+
   return (
     transaction.kategori?.nama_kategori ||
     transaction.nama_kategori ||
@@ -664,11 +1426,12 @@ function getCategoryName(transaction) {
   )
 }
 
-/* =========================
+/* =========================================
    WALLET
-========================= */
+========================================= */
 
 function getWalletName(transaction) {
+
   return (
     transaction.dompet?.nama_dompet ||
     transaction.nama_dompet ||
@@ -676,43 +1439,86 @@ function getWalletName(transaction) {
   )
 }
 
-/* =========================
+/* =========================================
+   TRANSACTION DATE
+========================================= */
+
+function formatTransactionDate(value) {
+
+  if (!value) {
+    return ''
+  }
+
+  const dateString =
+    String(value).slice(0, 10)
+
+  const date =
+    parseLocalDate(dateString)
+
+  return date.toLocaleDateString(
+    'en-US',
+    {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }
+  )
+}
+
+/* =========================================
    EXPENSE BREAKDOWN
-========================= */
+========================================= */
 
 const expenseBreakdown = computed(() => {
+
   const grouped = {}
 
-  expenseTransactions.value.forEach(transaction => {
-    const category =
-      getCategoryName(transaction)
+  expenseTransactions.value.forEach(
+    transaction => {
 
-    const amount =
-      Number(transaction.jumlah || 0)
+      const category =
+        getCategoryName(transaction)
 
-    if (!grouped[category]) {
-      grouped[category] = {
-        name: category,
-        amount: 0,
-        count: 0
+      const amount =
+        Number(
+          transaction.jumlah || 0
+        )
+
+      if (!grouped[category]) {
+
+        grouped[category] = {
+          name: category,
+          amount: 0,
+          count: 0
+        }
       }
+
+      grouped[category].amount +=
+        amount
+
+      grouped[category].count +=
+        1
     }
+  )
 
-    grouped[category].amount += amount
-    grouped[category].count += 1
-  })
-
-  const total = dailyExpenses.value
+  const total =
+    periodExpenses.value
 
   return Object.values(grouped)
     .map(item => ({
+
       ...item,
+
       percentage:
         total > 0
           ? Math.round(
-              (item.amount / total) * 100
+              (
+                item.amount /
+                total
+              ) * 100
             )
           : 0
+
     }))
     .sort(
       (a, b) =>
@@ -720,40 +1526,48 @@ const expenseBreakdown = computed(() => {
     )
 })
 
-/* =========================
+/* =========================================
    LARGEST EXPENSE
-========================= */
+========================================= */
 
 const largestExpense = computed(() => {
-  if (!expenseTransactions.value.length) {
+
+  if (
+    !expenseTransactions.value.length
+  ) {
     return null
   }
 
-  return [...expenseTransactions.value]
-    .sort(
-      (a, b) =>
-        Number(b.jumlah || 0) -
-        Number(a.jumlah || 0)
-    )[0]
+  return [
+    ...expenseTransactions.value
+  ].sort(
+    (a, b) =>
+      Number(b.jumlah || 0) -
+      Number(a.jumlah || 0)
+  )[0]
 })
 
-/* =========================
+/* =========================================
    TOP CATEGORY
-========================= */
+========================================= */
 
 const topExpenseCategory = computed(() => {
-  if (!expenseBreakdown.value.length) {
+
+  if (
+    !expenseBreakdown.value.length
+  ) {
     return null
   }
 
   return expenseBreakdown.value[0].name
 })
 
-/* =========================
+/* =========================================
    CURRENCY
-========================= */
+========================================= */
 
 function formatCurrency(value) {
+
   return new Intl.NumberFormat(
     'id-ID',
     {
@@ -762,20 +1576,22 @@ function formatCurrency(value) {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }
-  ).format(Number(value || 0))
+  ).format(
+    Number(value || 0)
+  )
 }
 
-/* =========================
+/* =========================================
    PRINT
-========================= */
+========================================= */
 
 function printReport() {
   window.print()
 }
 
-/* =========================
+/* =========================================
    INITIAL LOAD
-========================= */
+========================================= */
 
 onMounted(() => {
   fetchTransactions()
@@ -783,6 +1599,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
+
 /* =========================================
    PAGE
 ========================================= */
@@ -869,6 +1686,51 @@ onMounted(() => {
 }
 
 /* =========================================
+   PERIOD PANEL
+========================================= */
+
+.period-panel {
+  margin-bottom: 12px;
+  padding: 6px;
+  border: 1px solid #e8eaf1;
+  border-radius: 13px;
+  background: #ffffff;
+  box-shadow:
+    0 8px 25px rgba(30, 40, 80, 0.025);
+}
+
+.period-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+
+.period-tab {
+  min-height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #858c9e;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.period-tab:hover {
+  background: #f6f4ff;
+  color: #6c5ce7;
+}
+
+.period-tab.active {
+  background: #eeebff;
+  color: #6c5ce7;
+}
+
+/* =========================================
    DATE PANEL
 ========================================= */
 
@@ -931,9 +1793,11 @@ onMounted(() => {
   font-weight: 700;
 }
 
-.date-input {
+.date-input,
+.year-input {
   display: block;
   width: 130px;
+  height: 27px;
   margin: 7px auto 0;
   padding: 4px 7px;
   border: 1px solid #e6e8ee;
@@ -947,8 +1811,13 @@ onMounted(() => {
   cursor: pointer;
 }
 
-.date-input:focus {
+.date-input:focus,
+.year-input:focus {
   border-color: #bdb5f7;
+}
+
+.year-input {
+  width: 90px;
 }
 
 /* =========================================
@@ -1104,7 +1973,7 @@ onMounted(() => {
 }
 
 .transaction-table th {
-  padding: 10px 10px;
+  padding: 10px;
   border-bottom: 1px solid #eceef3;
   color: #a0a6b5;
   font-size: 8px;
@@ -1195,7 +2064,7 @@ onMounted(() => {
 }
 
 /* =========================================
-   EMPTY STATES
+   EMPTY
 ========================================= */
 
 .empty-state {
@@ -1249,7 +2118,7 @@ onMounted(() => {
 }
 
 /* =========================================
-   EXPENSE BREAKDOWN
+   BREAKDOWN
 ========================================= */
 
 .breakdown-list {
@@ -1414,7 +2283,7 @@ onMounted(() => {
 }
 
 /* =========================================
-   LOADING / SKELETON
+   LOADING
 ========================================= */
 
 .loading-state {
@@ -1466,7 +2335,14 @@ onMounted(() => {
 .skeleton-value {
   width: 125px;
   height: 20px;
+  margin-bottom: 8px;
   border-radius: 5px;
+}
+
+.skeleton-description {
+  width: 90px;
+  height: 7px;
+  border-radius: 4px;
 }
 
 .skeleton-panel {
@@ -1526,6 +2402,7 @@ onMounted(() => {
 }
 
 @keyframes skeleton-shimmer {
+
   0% {
     background-position: 100% 0;
   }
@@ -1533,6 +2410,7 @@ onMounted(() => {
   100% {
     background-position: -100% 0;
   }
+
 }
 
 /* =========================================
@@ -1540,6 +2418,7 @@ onMounted(() => {
 ========================================= */
 
 @media (max-width: 1100px) {
+
   .statement-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1552,6 +2431,7 @@ onMounted(() => {
   .skeleton-bottom .skeleton-panel {
     margin-bottom: 17px;
   }
+
 }
 
 /* =========================================
@@ -1559,6 +2439,7 @@ onMounted(() => {
 ========================================= */
 
 @media (max-width: 700px) {
+
   .report-page {
     padding: 17px 14px 90px;
   }
@@ -1575,6 +2456,18 @@ onMounted(() => {
 
   .print-button {
     width: 100%;
+  }
+
+  .period-panel {
+    margin-bottom: 10px;
+  }
+
+  .period-tabs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .period-tab {
+    min-height: 38px;
   }
 
   .date-panel {
@@ -1643,12 +2536,14 @@ onMounted(() => {
       1fr
       0.7fr
       0.8fr;
+
     min-width: 700px;
   }
 
   .skeleton-table {
     overflow: hidden;
   }
+
 }
 
 /* =========================================
@@ -1656,6 +2551,7 @@ onMounted(() => {
 ========================================= */
 
 @media (max-width: 400px) {
+
   .report-page {
     padding-left: 11px;
     padding-right: 11px;
@@ -1663,6 +2559,10 @@ onMounted(() => {
 
   .page-header h1 {
     font-size: 20px;
+  }
+
+  .period-tab {
+    font-size: 9px;
   }
 
   .date-panel {
@@ -1683,6 +2583,10 @@ onMounted(() => {
     width: 115px;
   }
 
+  .year-input {
+    width: 80px;
+  }
+
   .stat-card {
     padding: 15px;
   }
@@ -1699,6 +2603,7 @@ onMounted(() => {
     max-width: 125px;
     font-size: 8px;
   }
+
 }
 
 /* =========================================
@@ -1706,6 +2611,7 @@ onMounted(() => {
 ========================================= */
 
 @media print {
+
   .report-page {
     min-height: auto;
     padding: 0;
@@ -1716,11 +2622,8 @@ onMounted(() => {
     max-width: none;
   }
 
-  .page-header {
-    margin-bottom: 15px;
-  }
-
   .print-button,
+  .period-panel,
   .date-panel {
     display: none !important;
   }
@@ -1767,5 +2670,6 @@ onMounted(() => {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
+
 }
 </style>

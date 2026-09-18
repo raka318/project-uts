@@ -814,7 +814,7 @@ const exportExcel = async () => {
     exportingExcel.value = true
 
     const response = await axios.get(
-      `${API_BASE}/api/export/excel`,
+      `${API_BASE}/api/reports/export-excel`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -843,28 +843,24 @@ const exportExcel = async () => {
     link.remove()
     window.URL.revokeObjectURL(url)
 
-  } catch (error) {
-    console.error('Export Excel failed:', error)
+    } catch (error) {
+      console.error('========== EXPORT EXCEL ERROR ==========')
+      console.error('Error:', error)
+      console.error('Message:', error.message)
+      console.error('Response:', error.response)
+      console.error('Request:', error.request)
+      console.error('Code:', error.code)
+      console.error('========================================')
 
-    // Laravel may return JSON when the export endpoint fails.
-    let message = 'Unable to export your financial data. Please try again.'
+      alert(
+        `Export failed!\n\n` +
+        `Message: ${error.message || 'Unknown error'}\n` +
+        `Status: ${error.response?.status || 'No response from server'}`
+      )
 
-    if (error.response?.data instanceof Blob) {
-      try {
-        const raw = await error.response.data.text()
-        const parsed = JSON.parse(raw)
-        message = parsed.message || message
-      } catch (_) {
-        // Keep the default message if the response is not JSON.
-      }
-    } else {
-      message = error.response?.data?.message || message
+    } finally {
+      exportingExcel.value = false
     }
-
-    alert(message)
-  } finally {
-    exportingExcel.value = false
-  }
 }
 </script>
 
