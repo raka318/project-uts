@@ -42,7 +42,7 @@
           to="/"
           class="nav-item"
           :class="{ active: route.path === '/' }"
-        >
+        > 
           <svg viewBox="0 0 24 24">
             <path d="M3 10.5L12 3l9 7.5"></path>
             <path d="M5 9.5V21h14V9.5"></path>
@@ -113,6 +113,23 @@
           <span class="nav-label">Savings</span>
         </RouterLink>
 
+        
+
+        <RouterLink
+          to="/laporan"
+          class="nav-item"
+          :class="{ active: route.path.startsWith('/laporan') }"
+        >
+          <svg viewBox="0 0 24 24">
+            <path d="M4 4h16v16H4z"></path>
+            <path d="M8 8l8 8"></path>
+            <path d="M16 8l-8 8"></path>
+          </svg>
+
+          <span class="nav-label">Laporan</span>
+        </RouterLink>
+
+
 
         <!-- ================= PERSONAL ================= -->
         <div class="nav-section-title nav-section-label personal-title">
@@ -141,24 +158,68 @@
           <span class="nav-label">Profile</span>
         </RouterLink>
 
+        <!-- WALLETS --->
+        <RouterLink
+          to="/wallets"
+          class="nav-item"
+          :class="{ active: route.path.startsWith('/wallets') }"
+        >
+          <svg viewBox="0 0 24 24">
+            <path d="M4 6h16v12H4z"></path>
+            <path d="M4 6l8 6 8-6"></path>  
+          </svg>
+
+          <span class="nav-label">Wallets</span>
+            
+        </RouterLink>
+
       </nav>
 
-
       <!-- =================================================
-           SIDEBAR BOTTOM
+          SIDEBAR BOTTOM
       ================================================== -->
       <div class="sidebar-bottom">
 
-        <!-- HELP -->
-        <div class="">
+        <!-- EXPORT EXCEL -->
+        <button
+          type="button"
+          class="sidebar-bottom-item"
+          @click="exportExcel"
+          title="Export your financial data to Excel"
+        >
+          <svg viewBox="0 0 24 24">
+            <path d="M4 4h16v16H4z"></path>
+            <path d="M8 8l8 8"></path>
+            <path d="M16 8l-8 8"></path>
+          </svg>
 
-          
+          <span class="sidebar-bottom-label">
+            {{ exportingExcel ? 'Exporting...' : 'Export Excel' }}
+          </span>
+        </button>
 
-        </div>
+
+        <!-- NEED HELP -->
+        <RouterLink
+          to="/help"
+          class="sidebar-bottom-item"
+          :class="{ active: route.path.startsWith('/help') }"
+          title="Get help with MoneyFlow"
+        >
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M9.5 9a2.6 2.6 0 1 1 4.1 2.1c-.9.6-1.6 1.1-1.6 2.4"></path>
+            <path d="M12 17h.01"></path>
+          </svg>
+
+          <span class="sidebar-bottom-label">
+            Need Help?
+          </span>
+        </RouterLink>
 
 
         <!-- =================================================
-             CLICKABLE SIDEBAR PROFILE
+            CLICKABLE SIDEBAR PROFILE
         ================================================== -->
         <RouterLink
           to="/profile"
@@ -182,6 +243,8 @@
         </RouterLink>
 
       </div>
+
+
 
     </aside>
 
@@ -730,6 +793,79 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleEscape)
 })
+
+
+
+/* =========================================
+   EXPORT EXCEL
+========================================= */
+
+const exportingExcel = ref(false)
+
+const exportExcel = async () => {
+  const token = localStorage.getItem('auth_token')
+
+  if (!token) {
+    router.push('/login')
+    return
+  }
+
+  try {
+    exportingExcel.value = true
+
+    const response = await axios.get(
+      `${API_BASE}/api/export/excel`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        },
+        responseType: 'blob',
+      }
+    )
+
+    const blob = new Blob(
+      [response.data],
+      {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      }
+    )
+
+    const url = window.URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'MoneyFlow_Report.xlsx'
+
+    document.body.appendChild(link)
+    link.click()
+
+    link.remove()
+    window.URL.revokeObjectURL(url)
+
+  } catch (error) {
+    console.error('Export Excel failed:', error)
+
+    // Laravel may return JSON when the export endpoint fails.
+    let message = 'Unable to export your financial data. Please try again.'
+
+    if (error.response?.data instanceof Blob) {
+      try {
+        const raw = await error.response.data.text()
+        const parsed = JSON.parse(raw)
+        message = parsed.message || message
+      } catch (_) {
+        // Keep the default message if the response is not JSON.
+      }
+    } else {
+      message = error.response?.data?.message || message
+    }
+
+    alert(message)
+  } finally {
+    exportingExcel.value = false
+  }
+}
 </script>
 
 
@@ -1907,4 +2043,101 @@ onBeforeUnmount(() => {
 
 }
 
+/* =========================================================
+   SIDEBAR BOTTOM ACTIONS
+========================================================= */
+
+.sidebar-bottom-item {
+  width: 100%;
+  height: 43px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 0 10px;
+
+  margin-bottom: 4px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: transparent;
+
+  color: #667085;
+
+  text-decoration: none;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 550;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    padding 0.25s ease;
+}
+
+.sidebar-bottom-item svg {
+  width: 18px;
+  height: 18px;
+
+  flex-shrink: 0;
+
+  fill: none;
+  stroke: currentColor;
+
+  stroke-width: 1.7;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sidebar-bottom-item:hover,
+.sidebar-bottom-item.active {
+  background: #f4f2ff;
+  color: #6259f5;
+}
+
+.sidebar-bottom-item:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.sidebar-bottom-label {
+  white-space: nowrap;
+
+  opacity: 1;
+
+  transition:
+    opacity 0.15s ease,
+    width 0.25s ease;
+}
+
+
+/* =========================================================
+   COLLAPSED SIDEBAR BOTTOM ACTIONS
+========================================================= */
+
+.desktop-sidebar.collapsed .sidebar-bottom-item {
+  justify-content: center;
+
+  gap: 0;
+
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.desktop-sidebar.collapsed .sidebar-bottom-label {
+  width: 0;
+
+  margin: 0;
+
+  opacity: 0;
+
+  overflow: hidden;
+}
 </style>
