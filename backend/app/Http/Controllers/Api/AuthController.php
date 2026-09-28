@@ -61,13 +61,18 @@ class AuthController extends Controller
                 ], 401);
             }
 
-            // Kalau lolos semua pengecekan, buat token baru untuk user ini
             $token = $user->createToken('api-token')->plainTextToken;
 
             return response()->json([
                 'status'  => true,
                 'message' => 'Login berhasil.',
                 'token'   => $token,
+                'user'    => [
+                    'id'    => $user->id,
+                    'name'  => $user->name,
+                    'email' => $user->email,
+                    'role'  => $user->role, // Sertakan role di sini
+                ],
             ], 200);
 
         } catch (Exception $e) {
