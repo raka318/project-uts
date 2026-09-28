@@ -806,13 +806,14 @@ const exportExcel = async () => {
   const token = localStorage.getItem('auth_token')
 
   if (!token) {
+    alert('Please login first.')
     router.push('/login')
     return
   }
 
-  try {
-    exportingExcel.value = true
+  exportingExcel.value = true
 
+  try {
     const response = await axios.get(
       `${API_BASE}/api/reports/export-excel`,
       {
@@ -821,9 +822,16 @@ const exportExcel = async () => {
           Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         },
         responseType: 'blob',
+        timeout: 120000,
       }
     )
 
+    // Make sure Laravel actually returned something
+    if (!response.data || response.data.size === 0) {
+      throw new Error('The server returned an empty Excel file.')
+    }
+
+    // Create downloadable file
     const blob = new Blob(
       [response.data],
       {
@@ -831,36 +839,54 @@ const exportExcel = async () => {
       }
     )
 
-    const url = window.URL.createObjectURL(blob)
+    const downloadUrl = window.URL.createObjectURL(blob)
 
     const link = document.createElement('a')
-    link.href = url
+    link.href = downloadUrl
     link.download = 'MoneyFlow_Report.xlsx'
 
     document.body.appendChild(link)
     link.click()
-
     link.remove()
-    window.URL.revokeObjectURL(url)
 
-    } catch (error) {
-      console.error('========== EXPORT EXCEL ERROR ==========')
-      console.error('Error:', error)
-      console.error('Message:', error.message)
-      console.error('Response:', error.response)
-      console.error('Request:', error.request)
-      console.error('Code:', error.code)
-      console.error('========================================')
+    window.URL.revokeObjectURL(downloadUrl)
 
-      alert(
-        `Export failed!\n\n` +
-        `Message: ${error.message || 'Unknown error'}\n` +
-        `Status: ${error.response?.status || 'No response from server'}`
-      )
+  } catch (error) {
+    console.error('========== EXPORT EXCEL ERROR ==========')
+    console.error(error)
 
-    } finally {
-      exportingExcel.value = false
+    // Laravel errors can also come back as a Blob
+    if (error.response?.data instanceof Blob) {
+      try {
+        const errorText = await error.response.data.text()
+        console.error('Laravel error:', errorText)
+      } catch (e) {
+        console.error('Could not read Laravel error response.')
+      }
     }
+
+    if (error.response) {
+      alert(
+        `Export failed.\n\n` +
+        `Server status: ${error.response.status}\n` +
+        `Please check your Laravel backend.`
+      )
+    } else if (error.request) {
+      alert(
+        `Export failed.\n\n` +
+        `The frontend could not receive a response from Laravel.\n\n` +
+        `Make sure your backend is running and API_BASE_URL is correct.`
+      )
+    } else {
+      alert(
+        `Export failed.\n\n` +
+        `${error.message || 'Unknown error'}`
+      )
+    }
+
+  } finally {
+    exportingExcel.value = false
+  }
 }
 </script>
 
