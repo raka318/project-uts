@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\TransaksiController;
 use App\Http\Controllers\Api\AnggaranController;
 use App\Http\Controllers\Api\TujuanTabunganController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\AdminController;
 
 // Publik -- belum login boleh akses
 Route::post('/register', [AuthController::class, 'register']);
@@ -26,4 +27,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('tujuan-tabungan', TujuanTabunganController::class);
     Route::get('/reports/daily-summary', [ReportController::class, 'dailySummary']);
     Route::get('/reports/export-excel', [ReportController::class, 'exportDaily']);
+
+Route::middleware('admin')->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboardStats']);
+    Route::get('/users', [AdminController::class, 'getAllUsers']);
+    Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
+});
+
 });
