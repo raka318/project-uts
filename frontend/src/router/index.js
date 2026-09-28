@@ -1,22 +1,37 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-// Layout
+// =====================================================
+// USER LAYOUT
+// =====================================================
+
 import PublicLayout from '../components/PublicLayout.vue'
 
-// Existing views
+// =====================================================
+// USER VIEWS
+// =====================================================
+
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import TransactionsView from '../views/TransactionsView.vue'
 import BudgetsView from '../views/BudgetsView.vue'
 import SavingsView from '../views/SavingsView.vue'
-
 import CategoriesView from '../views/CategoriesView.vue'
 import LaporanView from '../views/LaporanView.vue'
 import HelpView from '../views/HelpView.vue'
-
-// New views
 import ProfileView from '../views/ProfileView.vue'
 import WalletsView from '../views/WalletsView.vue'
+
+// =====================================================
+// ADMIN LAYOUT & VIEWS
+// =====================================================
+
+import AdminLayout from '../layouts/AdminLayout.vue'
+import AdminDashboard from '../views/admin/AdminDashboard.vue'
+import AdminUsers from '../views/admin/AdminUsers.vue'
+import AdminTransactions from '../views/admin/AdminTransactions.vue'
+import AdminCategories from '../views/admin/AdminCategories.vue'
+
+
 const router = createRouter({
   history: createWebHistory(),
 
@@ -34,12 +49,7 @@ const router = createRouter({
 
 
     // =====================================================
-    // MAIN APPLICATION
-    // PublicLayout contains:
-    // - Desktop sidebar
-    // - Desktop top-right profile
-    // - Mobile header
-    // - Mobile profile menu
+    // MAIN USER APPLICATION
     // =====================================================
 
     {
@@ -48,107 +58,141 @@ const router = createRouter({
 
       children: [
 
-        // =================================================
-        // DASHBOARD
-        // =================================================
-
+        // Dashboard
         {
           path: '',
           name: 'home',
           component: HomeView
         },
 
-
-        // =================================================
-        // TRANSACTIONS
-        // =================================================
-
+        // Transactions
         {
           path: 'transactions',
           name: 'transactions',
           component: TransactionsView
         },
 
-
-        // =================================================
-        // BUDGETS
-        // =================================================
-
+        // Budgets
         {
           path: 'budgets',
           name: 'budgets',
           component: BudgetsView
         },
 
-
-        // =================================================
-        // SAVINGS
-        // =================================================
-
+        // Savings
         {
           path: 'savings',
           name: 'savings',
           component: SavingsView
         },
 
-
-        // =================================================
-        // PROFILE
-        // =================================================
-
+        // Profile
         {
           path: 'profile',
           name: 'profile',
           component: ProfileView
         },
 
+        // Wallets
         {
           path: 'wallets',
           name: 'wallets',
           component: WalletsView
         },
 
+        // Categories
         {
           path: 'categories',
           name: 'categories',
           component: CategoriesView
         },
 
+        // Laporan
         {
           path: 'laporan',
           name: 'laporan',
           component: LaporanView
         },
 
+        // Help
         {
           path: 'help',
           name: 'help',
           component: HelpView
         }
 
+      ]
+    },
+
+
+    // =====================================================
+    // ADMIN APPLICATION
+    // =====================================================
+
+    {
+      path: '/admin',
+      component: AdminLayout,
+
+      children: [
+
+        // Admin Dashboard
+        {
+          path: '',
+          name: 'admin-dashboard',
+          component: AdminDashboard
+        },
+
+        // User Management
+        {
+          path: 'users',
+          name: 'admin-users',
+          component: AdminUsers
+        },
+
+        // Transaction Management
+        {
+          path: 'transactions',
+          name: 'admin-transactions',
+          component: AdminTransactions
+        },
+
+        // Category Management
+        {
+          path: 'categories',
+          name: 'admin-categories',
+          component: AdminCategories
+        }
 
       ]
     }
 
   ]
-
 })
 
+
+// =====================================================
+// ROUTE GUARD
+// =====================================================
+
 router.beforeEach((to, from, next) => {
+
   const hasToken = Boolean(
     localStorage.getItem('token') ||
     localStorage.getItem('auth_token') ||
     localStorage.getItem('access_token')
   )
 
-  const isProtectedRoute = to.path !== '/login'
+  // Login doesn't require authentication
+  const isLoginPage = to.path === '/login'
 
-  if (isProtectedRoute && !hasToken) {
+  // Any page except login requires authentication
+  if (!isLoginPage && !hasToken) {
     next('/login')
     return
   }
 
   next()
 })
+
 
 export default router
