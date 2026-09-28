@@ -806,24 +806,32 @@ const exportExcel = async () => {
   const token = localStorage.getItem('auth_token')
 
   if (!token) {
+    alert('Please login first.')
     router.push('/login')
     return
   }
 
-  try {
-    exportingExcel.value = true
+  exportingExcel.value = true
 
+  try {
     const response = await axios.get(
-      `${API_BASE}/api/export/excel`,
+      `${API_BASE}/api/reports/export-excel`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         },
         responseType: 'blob',
+        timeout: 120000,
       }
     )
 
+    // Make sure Laravel actually returned something
+    if (!response.data || response.data.size === 0) {
+      throw new Error('The server returned an empty Excel file.')
+    }
+
+    // Create downloadable file
     const blob = new Blob(
       [response.data],
       {
@@ -831,37 +839,51 @@ const exportExcel = async () => {
       }
     )
 
-    const url = window.URL.createObjectURL(blob)
+    const downloadUrl = window.URL.createObjectURL(blob)
 
     const link = document.createElement('a')
-    link.href = url
+    link.href = downloadUrl
     link.download = 'MoneyFlow_Report.xlsx'
 
     document.body.appendChild(link)
     link.click()
-
     link.remove()
-    window.URL.revokeObjectURL(url)
+
+    window.URL.revokeObjectURL(downloadUrl)
 
   } catch (error) {
-    console.error('Export Excel failed:', error)
+    console.error('========== EXPORT EXCEL ERROR ==========')
+    console.error(error)
 
-    // Laravel may return JSON when the export endpoint fails.
-    let message = 'Unable to export your financial data. Please try again.'
-
+    // Laravel errors can also come back as a Blob
     if (error.response?.data instanceof Blob) {
       try {
-        const raw = await error.response.data.text()
-        const parsed = JSON.parse(raw)
-        message = parsed.message || message
-      } catch (_) {
-        // Keep the default message if the response is not JSON.
+        const errorText = await error.response.data.text()
+        console.error('Laravel error:', errorText)
+      } catch (e) {
+        console.error('Could not read Laravel error response.')
       }
-    } else {
-      message = error.response?.data?.message || message
     }
 
-    alert(message)
+    if (error.response) {
+      alert(
+        `Export failed.\n\n` +
+        `Server status: ${error.response.status}\n` +
+        `Please check your Laravel backend.`
+      )
+    } else if (error.request) {
+      alert(
+        `Export failed.\n\n` +
+        `The frontend could not receive a response from Laravel.\n\n` +
+        `Make sure your backend is running and API_BASE_URL is correct.`
+      )
+    } else {
+      alert(
+        `Export failed.\n\n` +
+        `${error.message || 'Unknown error'}`
+      )
+    }
+
   } finally {
     exportingExcel.value = false
   }

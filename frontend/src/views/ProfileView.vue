@@ -1,4 +1,4 @@
-```vue
+
 <template>
   <div class="profile-page">
 
